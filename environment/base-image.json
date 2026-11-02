@@ -1,0 +1,17 @@
+{
+  "repository": "nvidia/cuda",
+  "tag": "12.1.1-cudnn8-runtime-ubuntu22.04",
+  "digest": "sha256:f4d8e1264366940438f0353da6f289c7bef069d993d111f8106086ccd18c4a30",
+  "reference": "nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04@sha256:f4d8e1264366940438f0353da6f289c7bef069d993d111f8106086ccd18c4a30",
+  "platforms": [
+    {
+      "architecture": "arm64",
+      "os": "linux"
+    },
+    {
+      "architecture": "amd64",
+      "os": "linux"
+    }
+  ],
+  "verified_date": "2026-11-02"
+}

@@ -1,0 +1,36 @@
+# Local data, measured results and model state are never GitHub source files.
+/src/datasets/
+/src/results/
+/datasets/
+/results/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.pdf
+*.log
+*.tmp
+*.pyc
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+.ssh/
+*.pem
+*.key
+# Server-specific agent instructions and historical private research artifacts.
+/AGENTS.md
+/.codex/
+/.agents/
+/research/
+/docs/09-*/
+/docs/10-*/
+/docs/11-01/
+/docs/11-02/01-github-release/

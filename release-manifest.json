@@ -1,0 +1,408 @@
+{
+  "schema": "na_sfl_public_source_v1",
+  "date": "2026-11-02",
+  "repository": "kimsm0566/NA-SFL",
+  "visibility": "public",
+  "self_excluded_from_file_hashes": true,
+  "files": [
+    {
+      "path": ".dockerignore",
+      "bytes": 77,
+      "sha256": "b9ddfb8d1265c95181dfeaa3da410155cef13966bc7c48db405e4a29196a1aca",
+      "git_blob_sha1": "1c3003a5f0b990d239b9d5bcab3a937316087fd8"
+    },
+    {
+      "path": ".env.example",
+      "bytes": 99,
+      "sha256": "80d241fbf6bca3c6f84e993114a350e8955e6d9c139446300afcf5d63c828da4",
+      "git_blob_sha1": "3f11b31b1368b91e28066d2f9bc2c7c3be4a3416"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 485,
+      "sha256": "840cc9d3f7adf441687fc9d872cc0bd2553cdfdb1d64da860a22d3e72e068f08",
+      "git_blob_sha1": "baf1a2301c6e552be90254085b0bcd1bb4354b9a"
+    },
+    {
+      "path": "Dockerfile",
+      "bytes": 1487,
+      "sha256": "b98a3ba60813405cfc886ca9c2f1782f779b1a2a432cf5251bb67f038871f714",
+      "git_blob_sha1": "cc1b9cd28517bda8556850977b5544fe236e6016"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5070,
+      "sha256": "3cea781869298b8152aed441ce33f610381e46ee9161442b6a53cd8aadaea2ed",
+      "git_blob_sha1": "39e7b900c14feeb254d5f65b2325820553fab720"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 1897,
+      "sha256": "e5b1195f4c5e4b3526b9b8f869b690a5ca045c0d3c4cfdc3e434f49c334a08dc",
+      "git_blob_sha1": "7439f728b36db019239676933372a7641d4d74cd"
+    },
+    {
+      "path": "compose.yaml",
+      "bytes": 779,
+      "sha256": "2a2b2b9c1125de2ed9715efdb85ebb0f304b34e307352fb6e413d4f131a8c42d",
+      "git_blob_sha1": "0f37ef220128786ff6810f708352c34e56ca0759"
+    },
+    {
+      "path": "docs/11-02/02-portable-setup/README.md",
+      "bytes": 12946,
+      "sha256": "31d23c8a8220a93cd762f88eb1dd28ffa61ab9d67e064d201652a03537936bab",
+      "git_blob_sha1": "7a2e28b15a54d0898b2ad82190c1cacaac79d7e6"
+    },
+    {
+      "path": "docs/11-02/03-experiments/README.md",
+      "bytes": 7954,
+      "sha256": "9ada98558446875371b083b057e72f09dcca980c9375f96f777c9975c4af34a4",
+      "git_blob_sha1": "65c0b70b7da9f358b52c2e2f22db90c39c181850"
+    },
+    {
+      "path": "docs/11-02/04-architecture/README.md",
+      "bytes": 6793,
+      "sha256": "32087454cc8923809e797e039a02f257f3249590ee7c5df5c7d0f1617f9847ec",
+      "git_blob_sha1": "f9ea810b3dbef5a009310732b5e4d63f011ad54a"
+    },
+    {
+      "path": "docs/11-02/05-reproducibility/README.md",
+      "bytes": 4678,
+      "sha256": "3ca20beff8baa10ef687521467996f77d35e8ba600cd2dacd41e3fc870c69a8c",
+      "git_blob_sha1": "bce9f5364750466ed5650a3c40b520b9ab918273"
+    },
+    {
+      "path": "environment/apt-runtime.lock",
+      "bytes": 356,
+      "sha256": "5b908ac0df96cde2d03d0235e23cdd20496f942d39181322fab3b6c08dffa115",
+      "git_blob_sha1": "7841c4649da62547bc046781196675151cc2c0f0"
+    },
+    {
+      "path": "environment/base-image.json",
+      "bytes": 485,
+      "sha256": "aa786599a15d42521b6a37e256b39d107c094ca8d73f92da5c771b111d4686af",
+      "git_blob_sha1": "ef4034de33e0794558befd978b04e022fb098d97"
+    },
+    {
+      "path": "environment/observed-apt-packages.tsv",
+      "bytes": 13197,
+      "sha256": "2ebbce2885a1ff23b2e794e7bb499d7c64f6fb043bf9d095adf82af3712f3d3a",
+      "git_blob_sha1": "3997d6000e9d933b9ebdf22483b6e55726962a4a"
+    },
+    {
+      "path": "environment/observed-python-packages.json",
+      "bytes": 6233,
+      "sha256": "d886fb815570ea2904df3b7c7e208fe19c2e6ce1ca7dd15581b8ff4c41c5d0eb",
+      "git_blob_sha1": "f5b087d2bfc164f8a2b9ccc9f6d71b834d9fd893"
+    },
+    {
+      "path": "environment/reference.json",
+      "bytes": 1455,
+      "sha256": "7eb1d12ed676a55160a8a241d8bd85fb6e48a6c386726368feddfc366219b60b",
+      "git_blob_sha1": "f0f2300cb18784b04c18c613d302b2ac883b871c"
+    },
+    {
+      "path": "environment/validation.json",
+      "bytes": 9694,
+      "sha256": "36fdb0189632302bc3ae63354c76496e6c77f40482b61078202343d89c0941de",
+      "git_blob_sha1": "063830132c0ac6154bc816b4680825b3cb026d60"
+    },
+    {
+      "path": "requirements.txt",
+      "bytes": 1051,
+      "sha256": "f69d63c47776ff63d531c46350cb3fad317b7f423c542fec731079eb165d28ad",
+      "git_blob_sha1": "b4ffdff49cf1a552e777fea0a5327e83326286d4"
+    },
+    {
+      "path": "src/README.md",
+      "bytes": 1885,
+      "sha256": "e4fbc43536d462f4254819706dc7818a93cec8816b9421b3766471acc5f304b0",
+      "git_blob_sha1": "e4d7b54d9b3f26cef6c8378565003c03be8303c7"
+    },
+    {
+      "path": "src/checks/check_environment.py",
+      "bytes": 3523,
+      "sha256": "3e35828475dc760cf0dacb1fbabf2023464cbf9ec8dd2d4802f380ac5d4e0865",
+      "git_blob_sha1": "5f9157b0597166358db1cec0651eebff2f1fd50e"
+    },
+    {
+      "path": "src/configs/na_sfl_network.yaml",
+      "bytes": 470,
+      "sha256": "54c751955b7091cbbde29c6d9bd9b7b16c6680008d37580488aa4c7504e01db5",
+      "git_blob_sha1": "3d9126e0fe9fbce1ecd19ecd27993b81fc4e9f14"
+    },
+    {
+      "path": "src/configs/na_sfl_network_variable.yaml",
+      "bytes": 528,
+      "sha256": "017d5bae8c5951334ab47b7577345996b8e7d6d8365738ee47db283f9f82a687",
+      "git_blob_sha1": "ca9f7a9b92e9ce91d46aab883b646fd548f59f4a"
+    },
+    {
+      "path": "src/configs/na_sfl_v1.yaml",
+      "bytes": 472,
+      "sha256": "be00ab0108a08e72d3aff9404d862dc74063891b3ee4183207d0ed2f0fa2739c",
+      "git_blob_sha1": "b673a3a13e96af34bcc40c79c1a2aab8d0620de3"
+    },
+    {
+      "path": "src/configs/na_sfl_v3.yaml",
+      "bytes": 546,
+      "sha256": "d50440a0387ff1b3076836032044d3909e08478b45a3ffa5162a5facf5d541b3",
+      "git_blob_sha1": "391541c00b01b1e7a35db82dadd17b9fc285dc7f"
+    },
+    {
+      "path": "src/configs/na_sfl_v3_variable.yaml",
+      "bytes": 597,
+      "sha256": "617926e6464d11d38814b56764f0f709706ab944799d1371ea4d0e30a3aedf62",
+      "git_blob_sha1": "a2950ace4dd216c0b1984fd4e49a8bad64b7d810"
+    },
+    {
+      "path": "src/configs/na_sfl_v4.yaml",
+      "bytes": 885,
+      "sha256": "4354aed6da3b566b02e55c19d225182f2103772b820081d9d13409376f8d75be",
+      "git_blob_sha1": "0a25098fa180915e1c94577ef3658bfb087521cc"
+    },
+    {
+      "path": "src/configs/na_sfl_v4_variable.yaml",
+      "bytes": 936,
+      "sha256": "e1ac2b908b8bfc71bed05c3c5223a005b2d2d4e986e61cd3d5c392201e8aed79",
+      "git_blob_sha1": "64cf0a11fb0312c5aa758b96fc9bf7e689adea4f"
+    },
+    {
+      "path": "src/data/data.py",
+      "bytes": 3728,
+      "sha256": "cf059813075087500f477bef58ef7143f80f96566d74d487cd7052f39131f3f9",
+      "git_blob_sha1": "0ee37c68e4d4df5142a21b214ad01ea8b73d0a6b"
+    },
+    {
+      "path": "src/data/na_sfl_data.py",
+      "bytes": 3209,
+      "sha256": "5250202da0791315396d30bc0550ab3381f029c4d90bcafc0eb1e4b548c4fb97",
+      "git_blob_sha1": "f3156336a2212d0b60913528290402f86afaf098"
+    },
+    {
+      "path": "src/models/auxiliary.py",
+      "bytes": 406,
+      "sha256": "3c52a915999d0d59dfca5f3b6de521ee28d5b3e8dad0bf81ce02162c43428227",
+      "git_blob_sha1": "ab87501cd5a49e659760aef9f4941feadefce3cd"
+    },
+    {
+      "path": "src/models/model.py",
+      "bytes": 3374,
+      "sha256": "9429abe8414303a540b24a32a5238aaf599e012e1182a6a570ddd72bfea28b4a",
+      "git_blob_sha1": "09114159333e772d34ef3f1df996e5e9427c56a4"
+    },
+    {
+      "path": "src/models/resnet18.py",
+      "bytes": 1361,
+      "sha256": "4267e98cbf6cdb8ba3cfba4a6c3b23955546b74da01dbe10731e3b8d677c4fcc",
+      "git_blob_sha1": "6534e797ccb55bbaf0d3328ee1b014cd1ca8f112"
+    },
+    {
+      "path": "src/run_exp_main.py",
+      "bytes": 349,
+      "sha256": "3bc781517ddd9dafc6a2837cf0094bbc74ab705d079ce534351b7b1da40590e9",
+      "git_blob_sha1": "32ed38efc2366b8549c6476df11e62a48af4fc50"
+    },
+    {
+      "path": "src/tests/test_na_sfl_cpu.py",
+      "bytes": 16525,
+      "sha256": "430d4396eb5e883a7c4c974668ded15763504de59f2becd048a293b0733693a0",
+      "git_blob_sha1": "e0a42dc179b8a23526e1a2e6f640c10457ee73cb"
+    },
+    {
+      "path": "src/tests/test_na_sfl_network_cpu.py",
+      "bytes": 14948,
+      "sha256": "b17419ffcd6af8f28da36fcde0cbd7043836f2ba2764c96bef65caa3b971431f",
+      "git_blob_sha1": "5ad02498021a03d1e79fe5ea982b706f57c2fc03"
+    },
+    {
+      "path": "src/tests/test_na_sfl_proto_artifacts_cpu.py",
+      "bytes": 9580,
+      "sha256": "349c9f2177737cd53f016d892d5899fb0429ce574a09a233db2b86086aa8ae80",
+      "git_blob_sha1": "532d54d3b31af7985d84d6aafeeb21296ca1476a"
+    },
+    {
+      "path": "src/tests/test_na_sfl_proto_client_cpu.py",
+      "bytes": 2153,
+      "sha256": "ef13795281664f2686ce6a6287354c562c79f1eff4816f21078d07680fce418d",
+      "git_blob_sha1": "f85a384d13366bc4ac7f7e96853c9f89b5b35c4d"
+    },
+    {
+      "path": "src/tests/test_na_sfl_proto_flow_cpu.py",
+      "bytes": 3185,
+      "sha256": "20d2066da11aab31f53a39e573be35e499b201a20258b7adefb76fe5105936b0",
+      "git_blob_sha1": "7a11f22c367a9ebb4d95efa57bf774b9eb875e6b"
+    },
+    {
+      "path": "src/tests/test_na_sfl_proto_protocol_cpu.py",
+      "bytes": 6000,
+      "sha256": "a6dc85e874e97ba48685218f12b81706d3b4101f5d18b0219428d85359a2701e",
+      "git_blob_sha1": "96a420e3792d2c2e436fbae1caa8e1730e2c1854"
+    },
+    {
+      "path": "src/tests/test_na_sfl_prototype_cpu.py",
+      "bytes": 13379,
+      "sha256": "a11c9a2a1d725adc93cca93834fd92b075a745814bc191304ed79212146f66d5",
+      "git_blob_sha1": "7d7002b55ee9cbd0debf21f5fb3782820f7aabd6"
+    },
+    {
+      "path": "src/tests/test_na_sfl_residual_cpu.py",
+      "bytes": 12796,
+      "sha256": "cda04cfce559327a825ff47b1b0df580942d4d48672e9c00a95bbb0fd7c07615",
+      "git_blob_sha1": "aa8867969f9d24122d14349f431e87aad608d9b1"
+    },
+    {
+      "path": "src/tests/test_na_sfl_transport_cpu.py",
+      "bytes": 23200,
+      "sha256": "21cce1a4d7f1974aca25ec5df35b09dccfae9fede455f578abb5ea1034699236",
+      "git_blob_sha1": "3d9bc0a70f652853f18cbc483bdcc096a657d963"
+    },
+    {
+      "path": "src/tests/test_na_sfl_v2_cpu.py",
+      "bytes": 10785,
+      "sha256": "06f5c018de4cd8e281d833afa8b1c6df371758caa93f731cfcb47065c72364ac",
+      "git_blob_sha1": "f9e0baa2b4ab57b2998c7dbbacfc3ce7c064b200"
+    },
+    {
+      "path": "src/tests/test_na_sfl_v3_config_cpu.py",
+      "bytes": 3142,
+      "sha256": "065005471cfd0268c3241c36ab413337718746e04d023fe9e6f2067cff7d4849",
+      "git_blob_sha1": "297f04ecdfd68be7000866b1aa5a76d7b9b5d3f9"
+    },
+    {
+      "path": "src/tests/test_portability_cpu.py",
+      "bytes": 3115,
+      "sha256": "e9e57c3dba74697d01cfcd974cc36a06ec1b6a3c6ce1551dfca3a02fa577a4b2",
+      "git_blob_sha1": "d6e2202b2f81fa200e46618f04d33cefcf6912fa"
+    },
+    {
+      "path": "src/utils/client.py",
+      "bytes": 629,
+      "sha256": "75c840c20d8ecb95cd8ff76f5528545e5b17b5b3816f97f9d3a52559727b49ad",
+      "git_blob_sha1": "db1a4b5566be302bbc9bdf9a1d93d28bd968090a"
+    },
+    {
+      "path": "src/utils/deit_artifacts.py",
+      "bytes": 4678,
+      "sha256": "9ed3a287400dbd1a3f792f8d0695bb09d452f91e031ed1ddf7265e95665fab89",
+      "git_blob_sha1": "72e136b6aded31ad96ee63c6ab7078cfd558811e"
+    },
+    {
+      "path": "src/utils/deit_async.py",
+      "bytes": 25752,
+      "sha256": "abdd53a80226576ac77b38c05f0dc324c4ad8b60224b2360c7fc7b141df2c20e",
+      "git_blob_sha1": "13ee321e07bf238ea7175b9b3115e25f8371d089"
+    },
+    {
+      "path": "src/utils/logger.py",
+      "bytes": 524,
+      "sha256": "b8192c0b84a40d513745ffcd616f4d7053d8867544f67dfca3cd74d54d531d0b",
+      "git_blob_sha1": "0538e729f328656c4e47423ab312f4437db7a3b1"
+    },
+    {
+      "path": "src/utils/na_sfl.py",
+      "bytes": 3215,
+      "sha256": "2f4a9e9a0ab011a104cdc7bc0f6616de005686e7efb920b5751d4889c21df4c0",
+      "git_blob_sha1": "4dc96c2ba3a0bc5df6a3266585e0dbe1195cb004"
+    },
+    {
+      "path": "src/utils/na_sfl_artifacts.py",
+      "bytes": 9826,
+      "sha256": "a0b255d47e98a64ebc8e3b8e4972fed028c56507e91084140da25cef5e0b6322",
+      "git_blob_sha1": "d2bade39131fe6f3d3776e7db1688e1f3b223cb5"
+    },
+    {
+      "path": "src/utils/na_sfl_batch.py",
+      "bytes": 3214,
+      "sha256": "7af9c1633bd37c241e7a6bc89206e2a649d73fa3caf0e8cfa31cef6d4415b92b",
+      "git_blob_sha1": "c12bf6699cd1667bc8d0a57936e4f5eec1e07045"
+    },
+    {
+      "path": "src/utils/na_sfl_config.py",
+      "bytes": 12218,
+      "sha256": "a2c2020c91d1e6ccde0d4013721a4331809862c31f0172c0a4be5eeee7c8f5eb",
+      "git_blob_sha1": "32d529f618de28103ecfd763908dc8de58ae2340"
+    },
+    {
+      "path": "src/utils/na_sfl_network.py",
+      "bytes": 21551,
+      "sha256": "3285d40fb4cbc3c94e956f3f0e6b19f44505b6d7c76cd633509ad9a380cd67c5",
+      "git_blob_sha1": "95028725c847de70bc926147b80e68afd096cb52"
+    },
+    {
+      "path": "src/utils/na_sfl_proto_artifacts.py",
+      "bytes": 14929,
+      "sha256": "eb08bcec25d2ddc56cd320283bb153c11e92aea414ed83153dace3cf64eeaa11",
+      "git_blob_sha1": "db3fcc0ef91f082ce037631a0d2361561bdbae98"
+    },
+    {
+      "path": "src/utils/na_sfl_proto_client.py",
+      "bytes": 1482,
+      "sha256": "88dc872ccf9340c9b9a78a75f09c7f75d3f00a223c7288a1f29f762360ed6763",
+      "git_blob_sha1": "d43f7f19391c39f64b9fcf6ea24eb19439971d09"
+    },
+    {
+      "path": "src/utils/na_sfl_proto_protocol.py",
+      "bytes": 4318,
+      "sha256": "1438e8520a806d97a96ca83b665b502ac776dafa125f8d76365265f3afa90381",
+      "git_blob_sha1": "41ea663faf74d71bcb6cd586775fc4e5dcc86e74"
+    },
+    {
+      "path": "src/utils/na_sfl_prototype.py",
+      "bytes": 20862,
+      "sha256": "e1b698810a9bce659cd0902976e0097215e32ac402a9e7be69367c5a18866daf",
+      "git_blob_sha1": "563169c7ca54f1db412e1397bbda186858658a5a"
+    },
+    {
+      "path": "src/utils/na_sfl_residual.py",
+      "bytes": 14645,
+      "sha256": "20109694f93f5326f01815f51035ad0266947afc141e9cb26ad55f5bea272613",
+      "git_blob_sha1": "8f8d99f1a075a2682e883837b84142ba6e61e28b"
+    },
+    {
+      "path": "src/utils/na_sfl_run.py",
+      "bytes": 17494,
+      "sha256": "28a2f5e75eaf26b0fbe906a5144f6da7f11da0a2538dc5b0d6a9de4d4e050afb",
+      "git_blob_sha1": "619d88afd7ea441d17265613bc630beffd47e566"
+    },
+    {
+      "path": "src/utils/na_sfl_train.py",
+      "bytes": 28342,
+      "sha256": "3211c4b2a34c770ae7f52e8199789aa40bd68111f3b50f72eb429198b2dbae66",
+      "git_blob_sha1": "161961f26005f66618e352b9b9e50e8cd9227ebd"
+    },
+    {
+      "path": "src/utils/na_sfl_transport.py",
+      "bytes": 29416,
+      "sha256": "ad796b824e0958cbd786d4413033d8bbc93c07926c2734f9dc4f86598d1ff69c",
+      "git_blob_sha1": "84515c40fc27bd81dece530432a05dbbfe069440"
+    },
+    {
+      "path": "src/utils/option.py",
+      "bytes": 4782,
+      "sha256": "245bbc9277656d8d8f5bf016475bed1bf22926a0bfbe62b9cc2268b59fc304d2",
+      "git_blob_sha1": "66f07e5ac43f1ffaa78bfa4233f36283a09e5dcb"
+    },
+    {
+      "path": "src/utils/sflv2.py",
+      "bytes": 14614,
+      "sha256": "dc5da6e8f29c74ace02e65bb828b9f0d1d915aa68bcde66e3caf7349ed1bb86b",
+      "git_blob_sha1": "96cc47be8098defaee7a856fd31b025864423691"
+    },
+    {
+      "path": "src/utils/sflv2_metrics.py",
+      "bytes": 2195,
+      "sha256": "8dd40b478f646186f89b0b737667e9b0f4e6e6ae01b3f82f94de0e2b16a1ffec",
+      "git_blob_sha1": "7fe4db05361bdc5ffb9a748af8f3f238f00ed1db"
+    }
+  ],
+  "excluded": [
+    "datasets",
+    "results",
+    "checkpoints",
+    "personal AGENTS.md",
+    "historical research/PDF/archive/logs",
+    "credentials"
+  ],
+  "verification": "CPU193passed in original tree and clean export; environment62checks; pipcheck; CLI; Compose parse; no new Docker build/GPU run"
+}

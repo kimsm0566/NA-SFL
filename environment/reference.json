@@ -1,0 +1,22 @@
+{
+  "captured_date": "2026-11-02",
+  "python": "3.10.12",
+  "os_release": "PRETTY_NAME=\"Ubuntu 22.04.3 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.3 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy\n",
+  "architecture": "x86_64",
+  "host_kernel": "5.15.0-52-generic",
+  "torch": "2.4.0+cu121",
+  "torchvision": "0.19.0+cu121",
+  "runtime_python_package_count": 44,
+  "all_observed_package_count": 106,
+  "mininet_version": "2.3.1b4",
+  "mininet_commit": "6eb8973c0bfd13c25c244a3871130c5e36b5fbd7",
+  "mininet_source": "https://github.com/mininet/mininet.git",
+  "torch_cuda_runtime": "12.1",
+  "client_threads": 10,
+  "server_threads": 1,
+  "precision": "FP32; TF32 off",
+  "mpi": "Open MPI 4.1.2 (import compatibility only; training uses one process)",
+  "original_image": "hsfl-research-wifi:20261024 (local research image; not a public pull target)",
+  "caution": "Observed full inventories include unrelated legacy dependencies. requirements.txt includes only active dependency closure. Kernel/driver remain host-owned.",
+  "gpu_selection_policy": "Default measured GPU allowlist; --allow-unprofiled-gpu opt-in; busy/free80% preserved; prefer full GPU UUID."
+}

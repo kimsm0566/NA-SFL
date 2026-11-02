@@ -1,0 +1,30 @@
+services:
+  na-sfl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: na-sfl:torch2.4.0-cu121
+    container_name: na-sfl
+    init: true
+    restart: unless-stopped
+    runtime: nvidia
+    privileged: true
+    network_mode: host
+    shm_size: 8gb
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    environment:
+      NVIDIA_VISIBLE_DEVICES: ${NA_SFL_GPU:-0}
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      NA_SFL_CONTAINER_NAME: na-sfl
+      CUDA_DEVICE_ORDER: PCI_BUS_ID
+      PYTHONDONTWRITEBYTECODE: "1"
+      MPLBACKEND: Agg
+      OMP_NUM_THREADS: "2"
+      MKL_NUM_THREADS: "2"
+    volumes:
+      - .:/workspace/HSFL
+      - /var/run/netns:/var/run/netns
+    working_dir: /workspace/HSFL/src
+    command: [sleep, infinity]

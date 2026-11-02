@@ -1,0 +1,27 @@
+mode: live_async
+model: resnet18_cifar
+dataset: cifar10
+n_clients: 10
+samples_per_client: 3000
+partition: dirichlet
+dirichlet_alpha: 0.1
+cut: 2
+batch_size: 128
+local_epochs: 1
+rounds: 50
+optimizer: adam
+lr: 0.001
+weight_decay: 0.0005
+betas: [0.9, 0.999]
+eps: 1.0e-8
+method: na_sfl_v1
+aux_client_count: 0
+seed: 42
+augmentation: true
+device: 0
+num_workers: 0
+eval_batch_size: 250
+worker_timeout_s: 300.0
+queue_capacity: 20
+data_path: datasets
+result_path: results/na_sfl_v1

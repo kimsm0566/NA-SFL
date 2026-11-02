@@ -1,0 +1,5 @@
+**
+!Dockerfile
+!requirements.txt
+!environment/
+!environment/apt-runtime.lock

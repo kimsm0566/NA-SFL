@@ -1,0 +1,23 @@
+method: na_sfl_v3_proto
+aux_client_count: 0
+slow_client_ids: [0, 5]
+rounds: 2
+server_policy: individual
+target_accuracy: 70
+client_compute_seconds: {forward: 0.3, backward: 0.6, auxiliary: 0}
+prototype:
+  fast_sd_weight: 0.5
+  fast_proto_weight: 0.5
+  slow_proto_weight: 1.0
+  alignment_weight_beta: 0.1
+  alignment_reduction: mse
+network:
+  type: mininet
+  slow_client_ids: [0, 5]
+  fast_uplink_mbps: 100
+  fast_downlink_mbps: 100
+  slow_uplink_mbps: 20
+  slow_downlink_mbps: 50
+  rtt_ms: 10
+  send_buffer_sd: 1
+result_path: results/na_sfl_v3v4
