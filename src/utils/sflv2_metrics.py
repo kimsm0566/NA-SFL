@@ -47,10 +47,17 @@ def check_sources_unchanged(hashes):
             raise RuntimeError(f'source changed during execution: {name}')
 
 
-def seal_manifest(run_dir, source_hashes, *, kind='training'):
+def seal_manifest(run_dir, source_hashes, *, kind='training', excluded_files=()):
     root = Path(run_dir)
     check_sources_unchanged(source_hashes)
+    excluded = set(excluded_files)
+    if any(not isinstance(name, str) or Path(name).is_absolute() or '..' in Path(name).parts
+           or Path(name).as_posix() != name for name in excluded):
+        raise ValueError('manifest exclusions must be explicit relative file paths')
     artifacts = {p.relative_to(root).as_posix(): sha256(p) for p in sorted(root.rglob('*'))
-                 if p.is_file() and p.name != 'manifest.json' and 'source_snapshot' not in p.parts}
-    write_json(root / 'manifest.json', {'schema_version': 1, 'kind': kind,
-               'source_sha256': source_hashes, 'artifacts': artifacts})
+                 if p.is_file() and p.name != 'manifest.json' and 'source_snapshot' not in p.parts
+                 and p.relative_to(root).as_posix() not in excluded}
+    manifest = {'schema_version': 1, 'kind': kind, 'source_sha256': source_hashes, 'artifacts': artifacts}
+    if excluded:
+        manifest['excluded_artifacts'] = sorted(excluded)
+    write_json(root / 'manifest.json', manifest)

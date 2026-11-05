@@ -1,6 +1,6 @@
 # 새 서버에서 환경 재현하기
 
-작성일: 2026-11-02. 이 문서는 새 Linux 서버용이다. 원래 연구 서버의 `hsfl-keepalive` 컨테이너를 지우거나 교체하지 않는다.
+갱신일: 2026-11-05. 이 문서는 새 Linux 서버용이다. 원래 연구 서버의 `hsfl-keepalive` 컨테이너를 지우거나 교체하지 않는다.
 
 ## 1. 재현 기준과 필요한 자원
 
@@ -21,6 +21,11 @@
 | 여유 디스크 | 이미지·wheel·데이터·결과를 위해 최소25GiB 이상 권장 |
 
 전체 관측 패키지는 [environment](../../../environment/)에 기록했다. `requirements.txt`는 현재 사용 의존성과 그 하위 의존성의 설치 버전을 고정한다. 전체 관측 목록에는 삭제한 과거 방법의 패키지도 있으므로 전부 설치할 필요는 없다. 원래 로컬 이미지 `hsfl-research-wifi:20261024`는 Docker Hub에서 받을 수 있는 공개 이미지가 아니다.
+
+2026-11-05 배포는 기존 NA 의존성44개에 FedOptima 참조/전체 CPU 검사에 필요한9개를 더했다.
+NLTK/memory-profiler/tqdm과 closure의 관측 버전이 같은 lock에 있다. 기존 연구 서버는 별도
+`.hsfl_deps`를 사용하며 새 Docker recipe는 root lock으로 함께 설치한다. 외부 FedOptima 폴더의
+오래된 requirements에는 PyTorch1.4와 로컬 file URL이 있으므로 새 서버에 설치하지 않는다.
 
 Dockerfile은 공개 CUDA base를 digest로 고정하고, Python dependency와 Mininet commit을 명시한다. 핵심 apt 패키지도 기존 버전으로 고정한다. Ubuntu 저장소가 해당 버전을 제공하지 않으면 빌드가 실패하며 다른 버전으로 조용히 바꾸지 않는다. 이 경우 8절의 이미지 이동 또는 패키지 archive 확보가 필요하다. base에 포함된 나머지 OS 패키지나 host kernel/driver까지 binary 동일하다고 보장하지 않는다.
 
@@ -122,6 +127,9 @@ torchvision은 archive와 각 파일의 checksum을 검사한다. 원본: [CIFAR
 ## 5. 설치·데이터·CPU 검사
 
 다음은 GPU 연산을 하지 않고 패키지/import·도구·데이터를 확인한다. `--network`는 도구/root/import만 확인하며 topology를 만들지 않는다.
+
+전체 검사는4절 CIFAR10 배치 이후 실행한다. 데이터가 없으면 pytest에
+`--ignore=tests/test_fedoptima_model_data_cpu.py`를 추가하고 환경 검사에서 `--data-path`를 생략한다.
 
 ```bash
 sudo docker exec -w /workspace/HSFL/src -e CUDA_VISIBLE_DEVICES= na-sfl \

@@ -90,6 +90,7 @@ def _descriptor_size(spec):
 
 def send_tensors(sock, tensors, metadata):
     """Send a checked frame; return payload/header/wire byte and tensor counts."""
+    serialization_started = time.perf_counter()
     if not isinstance(tensors, dict) or len(tensors) > MAX_TENSORS or not isinstance(metadata, dict):
         raise ValueError('frame requires tensor and metadata dictionaries')
     payloads, specs, total = [], [], 0
@@ -112,13 +113,15 @@ def send_tensors(sock, tensors, metadata):
                            'tensors': specs, 'payload_bytes': total})
     if len(encoded) > MAX_HEADER_BYTES:
         raise ValueError('frame header is too large')
+    serialization_time_s = time.perf_counter() - serialization_started
     sock.sendall(struct.pack('!Q', len(encoded)))
     sock.sendall(encoded)
     for raw in payloads:
         if raw:
             sock.sendall(raw)
     return {'payload_bytes': total, 'header_bytes': len(encoded),
-            'wire_bytes': 8 + len(encoded) + total, 'tensor_count': len(specs)}
+            'wire_bytes': 8 + len(encoded) + total, 'tensor_count': len(specs),
+            'serialization_time_s': serialization_time_s}
 
 
 def _read_exact(sock, size):
@@ -225,6 +228,10 @@ class TCPRoundTransport:
                         for kind in ('sd_send', 'sd_receive', 'gradient_send', 'gradient_receive')}
         self._threads = []
         self._events = []
+        self._pipeline_seen = False
+        self._pipeline_peaks = {name: [0] * count for name in (
+            'outstanding_jobs', 'sender_queue_depth', 'gradient_receive_queue_depth', 'queued_cpu_bytes')}
+        self._pipeline_queued_bytes = [0] * count
         self._counters = {f'{kind}_payload_bytes_{direction}': 0
                           for kind in ('sd', 'gradient') for direction in ('sent', 'received')}
         self._counters.update(frames_sent=0, frames_received=0, wire_bytes_sent=0)
@@ -314,6 +321,9 @@ class TCPRoundTransport:
                 raise RuntimeError('submit requires a credit reserved by this Client thread')
             if job_id in self._seen_jobs:
                 raise ValueError('duplicate SD job')
+            if 'pipeline_group_id' in packet['row']:
+                if sum(record['cid'] == cid for record in self._records.values()) >= 2:
+                    raise RuntimeError('pipeline outstanding window is full (2)')
         activation = self._snapshot(packet.get('activation'))
         labels = self._snapshot(packet.get('labels'))
         if activation.ndim < 1 or labels.ndim != 1 or labels.dtype != torch.int64 or activation.shape[0] != labels.shape[0]:
@@ -330,11 +340,16 @@ class TCPRoundTransport:
         # Drop source tensor references: updates by the caller cannot alter SD.
         record['packet']['activation'] = activation
         record['packet']['labels'] = labels
-        if packet.get('job_kind') in ('SD_JOB', 'PROTO_JOB'):
+        if packet.get('job_kind') in ('SD_JOB', 'PROTO_JOB', 'HYBRID_JOB'):
             from utils.na_sfl_proto_protocol import request_message
-            if packet['job_kind'] == 'PROTO_JOB':
+            if packet['job_kind'] in ('PROTO_JOB', 'HYBRID_JOB'):
                 record['packet']['counts'] = self._snapshot(packet.get('counts'))
+            if packet['job_kind'] == 'HYBRID_JOB':
+                for name in ('selected_sd', 'selected_labels', 'selected_indices'):
+                    record['packet'][name] = self._snapshot(packet.get(name))
             record['typed_request'], record['typed_metadata'] = request_message(record['packet'])
+            if sum(t.numel() * t.element_size() for t in record['typed_request'].values()) > MAX_PAYLOAD_BYTES:
+                raise ValueError('typed request frame is too large')
             record['row']['request_kind'] = packet['job_kind']
         with self._condition:
             self._check_running()
@@ -347,6 +362,20 @@ class TCPRoundTransport:
             self._gradient_pending += int(returns)
             self._queues['sd_send'][cid].append(record)
             self._queues['sd_receive'][cid].append(record)
+            if 'pipeline_group_id' in record['row']:
+                self._pipeline_seen = True
+                tensors = record.get('typed_request', record['sd'])
+                record['queued_cpu_bytes'] = sum(t.numel() * t.element_size() for t in tensors.values())
+                self._pipeline_queued_bytes[cid] += record['queued_cpu_bytes']
+                outstanding = sum(value['cid'] == cid for value in self._records.values())
+                depth = len(self._queues['sd_send'][cid])
+                for name, value in (('outstanding_jobs', outstanding), ('sender_queue_depth', depth),
+                                    ('queued_cpu_bytes', self._pipeline_queued_bytes[cid])):
+                    self._pipeline_peaks[name][cid] = max(self._pipeline_peaks[name][cid], value)
+                record['row'].update(sendqueue_enqueue_s=self.now(), sendqueue_depth_on_enqueue=depth,
+                    sendqueue_cpu_bytes_on_enqueue=self._pipeline_queued_bytes[cid],
+                    max_sender_queue_depth=self._pipeline_peaks['sender_queue_depth'][cid],
+                    max_queued_cpu_bytes=self._pipeline_peaks['queued_cpu_bytes'][cid])
             self._condition.notify_all()
 
     def send_gradient(self, packet, gradient_CPU):
@@ -365,9 +394,24 @@ class TCPRoundTransport:
                             if value['cid'] == cid and value['gradient_queued'])
             if in_flight >= self.capacity:
                 raise RuntimeError('bounded gradient queue is full')
-        gradient = self._snapshot(gradient_CPU)
-        if gradient.shape != record['activation_shape'] or gradient.dtype != record['activation_dtype']:
-            raise ValueError('cut gradient shape/dtype mismatch')
+        hybrid = record['packet'].get('job_kind') == 'HYBRID_JOB'
+        if hybrid:
+            if not isinstance(gradient_CPU, dict):
+                raise ValueError('Hybrid job requires a gradient dictionary')
+            gradient = {key: self._snapshot(value) for key, value in gradient_CPU.items()}
+            from utils.na_sfl_proto_protocol import reply_message
+            typed_reply, reply_metadata = reply_message(record['typed_metadata'], gradient)
+            for key, request_key in (('classes', 'classes'), ('selected_indices', 'selected_indices')):
+                if not torch.equal(gradient[key], record['typed_request'][request_key]):
+                    raise ValueError('Hybrid gradient echo does not match request')
+        else:
+            gradient = self._snapshot(gradient_CPU)
+            if gradient.shape != record['activation_shape'] or gradient.dtype != record['activation_dtype']:
+                raise ValueError('cut gradient shape/dtype mismatch')
+            if 'typed_metadata' in record:
+                from utils.na_sfl_proto_protocol import reply_message
+                typed_reply, reply_metadata = reply_message(
+                    record['typed_metadata'], gradient, record['packet']['labels'])
         with self._condition:
             self._check_running()
             if record['gradient_queued']:
@@ -375,12 +419,14 @@ class TCPRoundTransport:
             record['gradient_queued'] = True
             record['gradient'] = gradient
             if 'typed_metadata' in record:
-                from utils.na_sfl_proto_protocol import reply_message
-                record['typed_reply'], record['reply_metadata'] = reply_message(
-                    record['typed_metadata'], gradient, record['packet']['labels'])
+                record['typed_reply'], record['reply_metadata'] = typed_reply, reply_metadata
                 record['row']['response_kind'] = record['reply_metadata']['kind']
             self._queues['gradient_send'][cid].append(record)
             self._queues['gradient_receive'][cid].append(record)
+            if 'pipeline_group_id' in record['row']:
+                depth = len(self._queues['gradient_receive'][cid])
+                self._pipeline_peaks['gradient_receive_queue_depth'][cid] = max(
+                    self._pipeline_peaks['gradient_receive_queue_depth'][cid], depth)
             self._condition.notify_all()
 
     def _next(self, cid, kind):
@@ -390,7 +436,11 @@ class TCPRoundTransport:
                 self._condition.wait(.05)
             if self._aborted or not queue:
                 return None
-            return queue.popleft()
+            record = queue.popleft()
+            if kind == 'sd_send' and 'pipeline_group_id' in record['row']:
+                self._pipeline_queued_bytes[cid] -= record['queued_cpu_bytes']
+                record['row']['sender_dequeue_s'] = self.now()
+            return record
 
     def _metadata(self, record, kind):
         if 'typed_metadata' in record:
@@ -418,6 +468,7 @@ class TCPRoundTransport:
         record['row'][kind + '_payload_bytes'] = stats['payload_bytes']
         record['row'][kind + '_header_bytes'] = stats['header_bytes']
         record['row'][kind + '_wire_bytes'] = stats['wire_bytes']
+        record['row'][kind + '_serialization_time_s'] = stats['serialization_time_s']
         self._event(record, kind, 'send_return', stats['payload_bytes'])
         with self._condition:
             self._counters[f'{kind}_payload_bytes_sent'] += stats['payload_bytes']
@@ -426,6 +477,8 @@ class TCPRoundTransport:
             self._condition.notify_all()
 
     def _receive(self, record, kind, sock):
+        if kind == 'gradient' and 'pipeline_group_id' in record['row']:
+            record['row']['gradient_receive_start_s'] = self.now()
         ticket = None
         def received(payload_bytes):
             nonlocal ticket
@@ -469,6 +522,10 @@ class TCPRoundTransport:
                     decoded.update(activation=tensors['sd'], labels=tensors['labels'])
                 else:
                     decoded.update(activation=tensors['prototypes'], labels=tensors['classes'], counts=tensors['counts'])
+                    if metadata['kind'] == 'HYBRID_JOB':
+                        decoded.update({key: tensors[key] for key in ('selected_sd', 'selected_labels', 'selected_indices')})
+                        decoded.update(sample_ratio=metadata['sample_ratio'], sample_seed=metadata['sample_seed'],
+                                       actual_batch_size=metadata['actual_batch_size'])
             else:
                 decoded.update(tensors)
             with self._condition:
@@ -488,7 +545,14 @@ class TCPRoundTransport:
                     self._records.pop(record['job_id'], None)
                 self._condition.notify_all()
         else:
-            self.on_gradient(record['job_id'], tensors['gradient'])
+            if 'pipeline_group_id' in record['row']:
+                record['row']['gradient_available_s'] = self.now()
+                # A woken Trainer may immediately enqueue its next two Jobs.
+                # Release this completed record before publishing its Future,
+                # while pending_gradients still covers callback execution.
+                with self._condition:
+                    self._records.pop(record['job_id'], None)
+            self.on_gradient(record['job_id'], tensors if metadata.get('kind') == 'HYBRID_GRADIENT' else tensors['gradient'])
             with self._condition:
                 if self._aborted:
                     return
@@ -534,6 +598,7 @@ class TCPRoundTransport:
             self._reserved.clear()
             self._records.clear()
             self._sd_pending = self._gradient_pending = 0
+            self._pipeline_queued_bytes[:] = [0] * len(self.connections)
             for queues in self._queues.values():
                 for queue in queues:
                     queue.clear()
@@ -588,10 +653,18 @@ class TCPRoundTransport:
     def stats(self):
         """Return a detached JSON-compatible round communication snapshot."""
         with self._condition:
-            return {**self._counters, 'workers_alive': sum(t.is_alive() for t in self._threads),
+            result = {**self._counters, 'workers_alive': sum(t.is_alive() for t in self._threads),
                     'pending_sd': sum(self._credits), 'pending_gradients': self._gradient_pending,
                     'reserved_sd': sum(self._reserved.values()),
                     'max_pending_sd_per_client': list(self._max_credits),
                     'frame_events': [dict(event) for event in self._events],
                     'aborted': self._aborted, 'finished': self._finished,
                     'error': str(self._error) if self._error is not None else None}
+            if self._pipeline_seen:
+                result['pipeline'] = {
+                    **{'max_' + name + '_per_client': list(values)
+                       for name, values in self._pipeline_peaks.items()},
+                    'queued_cpu_bytes': sum(self._pipeline_queued_bytes),
+                    'sender_workers_per_client': 1, 'receiver_workers_per_client': 1,
+                    'outstanding_jobs': len(self._records)}
+            return result

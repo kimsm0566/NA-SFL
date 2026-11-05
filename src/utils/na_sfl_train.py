@@ -1,5 +1,6 @@
 """CIFAR10 round coordinator using the existing live_async FCFS workers."""
 import hashlib
+import json
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 import math
@@ -20,7 +21,7 @@ from utils.na_sfl import NASFLClient, average_round_models
 from utils.na_sfl_batch import validate_server_batches
 from utils.sflv2 import SFLV2Trainer, SFLV2Server, _optimizer, sflv2_fp32
 from utils.sflv2_metrics import check_sources_unchanged
-from utils.na_sfl_config import PROTO_METHODS
+from utils.na_sfl_config import PROTO_METHODS, NO_AUX_METHODS, SD_ONLY_METHOD, HYBRID_METHODS, PIPELINE_METHOD
 
 
 def model_digest(model):
@@ -54,6 +55,8 @@ def validate_feature_memory_boundary(saved):
         if (bank['version'] != count or bank['round_id'] != count
                 or bank['bank_round_id'] != count or bank['active'] is not False):
             raise ValueError('residual bank does not match completed model checkpoint boundary')
+    from utils.na_sfl_bn import validate_bn_checkpoint_boundary
+    validate_bn_checkpoint_boundary(saved)
 
 
 def validate_resume_metadata(saved):
@@ -67,12 +70,24 @@ def validate_resume_metadata(saved):
             raise ValueError('shared Server history must start at version zero')
     else:
         steps = len(jobs)
+    pipeline = saved['config'].get('method') == PIPELINE_METHOD
+    client_steps = validate_pipeline_groups(jobs, require_zero_start=True) if pipeline else len(jobs)
+    if pipeline:
+        expected_versions = [0] * saved['config']['n_clients']
+        for job in jobs:
+            cid = job['client_id']
+            if type(cid) is not int or not 0 <= cid < len(expected_versions):
+                raise ValueError('pipeline history has an invalid Client identity')
+            expected_versions[cid] = max(expected_versions[cid], job['client_version_after'])
+        if (any(type(v) is not int or v < 0 for v in saved['client_versions'])
+                or saved['client_versions'] != expected_versions):
+            raise ValueError('pipeline restored Client versions differ from individual group histories')
     if (type(count) is not int or count < 1
             or [row['round'] for row in saved['rounds']] != list(range(1, count + 1))
             or len(saved['execution_boundaries']) != count or len(saved['aggregation_records']) != count
             or saved['server_version'] != steps
             or len(saved['client_versions']) != saved['config']['n_clients']
-            or sum(saved['client_versions']) != len(jobs)
+            or sum(saved['client_versions']) != client_steps
             or len(saved['client_optimizers']) != saved['config']['n_clients']
             or any(optimizer['state'] for optimizer in saved['client_optimizers'])
             or any(optimizer['state'] for optimizer in saved['auxiliary_optimizers'])):
@@ -99,6 +114,48 @@ def validate_resume_metadata(saved):
             or [job['server_version_after'] for job in jobs] != list(range(1, len(jobs) + 1))):
         raise ValueError('noncontiguous shared server update versions')
     validate_feature_memory_boundary(saved)
+
+
+def validate_pipeline_groups(jobs, *, require_zero_start=False):
+    """Persisted exactly-once group steps; distinct from per-Job Server steps."""
+    groups = {}
+    seen = set()
+    for job in jobs:
+        identity = tuple(job['job_id'])
+        if identity in seen:
+            raise ValueError('duplicate pipeline job')
+        seen.add(identity)
+        key = (job['round'], job['client_id'], job['pipeline_group_id'])
+        groups.setdefault(key, []).append(job)
+    by_client = {}
+    for (rid, cid, gid), own in sorted(groups.items()):
+        own.sort(key=lambda row: row['local_batch_index'])
+        n = len(own)
+        v = own[0]['client_version_before']
+        if (n not in (1, 2) or gid < 0
+                or [row['local_batch_index'] for row in own] != list(range(2*gid, 2*gid+n))
+                or sum(row.get('client_optimizer_step_performed') is True for row in own) != 1
+                or any(row.get('group_size') != n or row['client_version_before'] != v
+                    or row.get('client_group_version') != v or row.get('client_backward_version') != v
+                    or row.get('client_optimizer_step_id') != v or row['client_version_after'] != v+1
+                    or row.get('gradient_scale_to_group_mean') != 1/n
+                    or tuple(row['job_id']) != (rid, cid, row['local_batch_index']) for row in own)):
+            raise ValueError('inconsistent pipeline group/parameter version/mean gradient/one-step record')
+        by_client.setdefault(cid, []).append((rid, gid, v, n))
+    for own in by_client.values():
+        first_group_by_round = {}
+        for rid, gid, _, _ in own:
+            first_group_by_round.setdefault(rid, gid)
+        if any(gid != 0 for gid in first_group_by_round.values()):
+            raise ValueError('pipeline round must begin with group zero')
+        if require_zero_start and own[0][2] != 0:
+            raise ValueError('pipeline Client history must start at version zero')
+        for previous, following in zip(own, own[1:]):
+            if following[2] != previous[2]+1:
+                raise ValueError('pipeline Client step versions are not contiguous')
+            if previous[0] == following[0] and (following[1] != previous[1]+1 or previous[3] != 2):
+                raise ValueError('pipeline groups must be consecutive with singleton only at round end')
+    return len(groups)
 
 
 class NASFLTrainer(SFLV2Trainer):
@@ -144,14 +201,27 @@ class NASFLTrainer(SFLV2Trainer):
                 model = ClientModel(config['model'], config['cut']).to(self.device)
                 load_matching_state(model, state)
                 head = None
-                if config['method'] not in ('splitfedv2', *PROTO_METHODS):
+                if config['method'] not in NO_AUX_METHODS:
                     with torch.random.fork_rng(devices=[]):
                         torch.random.default_generator.manual_seed(self._seed('auxiliary_initialization'))
                         channels = model_layout(config['model'], config['cut'])['boundary_shape_per_sample'][0]
                         head = AuxiliaryHead(channels, 10).to(self.device)
-                if config['method'] in PROTO_METHODS:
+                if config['method'] == SD_ONLY_METHOD:
+                    from utils.na_sfl_hybrid import SDOnlyClient
+                    node = SDOnlyClient(cid, model, self.client_optimizer_config,
+                        sampled_mode=cid in config['slow_client_ids'])
+                elif config['method'] == PIPELINE_METHOD:
+                    from utils.na_sfl_pipeline import PipelineClient
+                    node = PipelineClient(cid, model, self.client_optimizer_config,
+                        prototype_mode=cid in config['slow_client_ids'])
+                elif config['method'] in PROTO_METHODS:
                     from utils.na_sfl_proto_client import PrototypeClient
-                    node = PrototypeClient(cid, model, self.client_optimizer_config,
+                    if config['method'] == 'na_sfl_proto_random_sd':
+                        from utils.na_sfl_hybrid import RandomSDClient
+                        client_type = RandomSDClient
+                    else:
+                        client_type = PrototypeClient
+                    node = client_type(cid, model, self.client_optimizer_config,
                         prototype_mode=cid in config['slow_client_ids'])
                 else:
                     node = NASFLClient(cid, model, self.client_optimizer_config, head=head,
@@ -196,6 +266,11 @@ class NASFLTrainer(SFLV2Trainer):
 
     def _log(self, message):
         self.logger.info(message)
+
+    def _evaluate(self, images, labels):
+        if hasattr(self.server, 'batchnorm'):
+            self.server.batchnorm.require_sd_domain()
+        return super()._evaluate(images, labels)
 
     def _client_batches(self, images, labels, sample_ids, round_id, client_id):
         index = 0
@@ -298,14 +373,38 @@ class NASFLTrainer(SFLV2Trainer):
                 raise RuntimeError('wrong local/SD batch count')
             expected_mode = 'aux' if cid in self.args['aux_client_ids'] else 'server'
             if any(job['gradient_mode'] != expected_mode or
-                   job['auxiliary_updated'] != (self.args['method'] not in ('splitfedv2', *PROTO_METHODS)) or
+                   job['auxiliary_updated'] != (self.args['method'] not in NO_AUX_METHODS) or
                    (job['gradient_bytes'] > 0) != (expected_mode == 'server') or
                    job['client_version_after'] != job['client_version_before'] + 1 for job in own):
                 raise RuntimeError('wrong gradient mode, auxiliary update or local version')
+            if self.args['method'] == SD_ONLY_METHOD:
+                from utils.na_sfl_hybrid import sample_indices
+                for job in own:
+                    indices = (sample_indices(job['samples'], self.args['random_sd']['sample_ratio'],
+                        self.args['random_sd']['sample_seed'], tuple(job['job_id'])).tolist()
+                        if cid in self.args['slow_client_ids'] else list(range(job['samples'])))
+                    if (job.get('selected_indices') != indices or job.get('server_samples') != len(indices)
+                            or job.get('transmitted_labels') != [job['labels'][i] for i in indices]
+                            or job.get('prototype_used') is not False
+                            or any(key in job for key in ('proto_counts', 'proto_class_ids', 'job_kind'))):
+                        raise RuntimeError('SD-only sampling/labels/no-prototype contract failed')
             if self.args['method'] in PROTO_METHODS:
                 kind = 'PROTO_JOB' if cid in self.args['slow_client_ids'] else 'SD_JOB'
+                if (kind == 'PROTO_JOB' and self.args['method'] in HYBRID_METHODS
+                        and self.args['random_sd']['sample_ratio'] > 0):
+                    kind = 'HYBRID_JOB'
                 if any(job.get('job_kind') != kind for job in own):
                     raise RuntimeError('wrong SD/Prototype upload for Client mode')
+                if kind == 'HYBRID_JOB':
+                    from utils.na_sfl_hybrid import sample_count, sample_indices
+                    q, seed = self.args['random_sd']['sample_ratio'], self.args['random_sd']['sample_seed']
+                    for job in own:
+                        count = sample_count(job['samples'], q)
+                        indices = sample_indices(job['samples'], q, seed, tuple(job['job_id'])).tolist()
+                        if (job.get('selected_sd_count') != count or job.get('selected_indices') != indices
+                                or sum(job['proto_counts']) != job['samples']
+                                or job.get('bn_forward_calls') != {'sd': 1, 'proto': 1}):
+                            raise RuntimeError('Hybrid full-batch prototype/sample/BN contract failed')
             visited = [sample for job in own for sample in job['sample_ids']]
             if self.args['max_batches_per_client'] is None:
                 frequencies = Counter(visited)
@@ -314,6 +413,9 @@ class NASFLTrainer(SFLV2Trainer):
                     raise RuntimeError('round sample coverage mismatch')
             elif len(set(visited)) != len(visited) or not set(visited) <= set(part.tolist()):
                 raise RuntimeError('invalid truncated-stage sample ownership')
+        if self.args['method'] == PIPELINE_METHOD:
+            if validate_pipeline_groups(jobs) != len(self.clients)*math.ceil(expected_per_client/2):
+                raise RuntimeError('pipeline Client group count differs from expected')
         return expected
 
     def checkpoint_payload(self):
@@ -348,10 +450,20 @@ class NASFLTrainer(SFLV2Trainer):
         json_file(self.run_dir / 'execution_boundaries.json', self.execution_boundaries)
         json_file(self.run_dir / 'server_batches.json', self.server_batch_records)
         csv_file(self.run_dir / 'server_batches.csv', self.server_batch_records)
+        if self.args['method'] == SD_ONLY_METHOD:
+            temporary = self.run_dir / 'per_job.jsonl.tmp'
+            with temporary.open('w') as stream:
+                for job in self.job_records:
+                    stream.write(json.dumps(job, allow_nan=False) + '\n')
+            temporary.replace(self.run_dir / 'per_job.jsonl')
         if self.args['method'] in PROTO_METHODS:
             from utils.na_sfl_proto_artifacts import write_proto_artifacts
             write_proto_artifacts(self.run_dir, self.rounds, self.job_records, self.aggregation_records,
                                   config=self.args, initial_evaluation=self.initial_evaluation)
+        if self.args['method'] == PIPELINE_METHOD:
+            from utils.na_sfl_pipeline_artifacts import write_pipeline_artifacts
+            write_pipeline_artifacts(self.run_dir, self.rounds, self.job_records,
+                config=self.args, initial_evaluation=self.initial_evaluation)
 
     def run(self, train_images, train_labels, test_images, test_labels, partitions,
             stop_after_rounds=None, max_wall_time_s=None):
@@ -420,10 +532,13 @@ class NASFLTrainer(SFLV2Trainer):
             row = {'round': round_id, 'seed': self.args['seed'], 'method': self.args['method'],
                 'aux_client_count': self.args['aux_client_count'], 'aux_client_ids': self.args['aux_client_ids'],
                 'test_accuracy': accuracy, 'test_ce_loss': loss,
-                'train_server_ce_loss': sum(job['loss'] * job['samples'] for job in jobs) / samples,
+                'train_server_ce_loss': sum(job['loss'] * job.get('server_samples', job['samples']) for job in jobs)
+                    / sum(job.get('server_samples', job['samples']) for job in jobs),
                 'train_aux_ce_loss_server_mode': aux_loss('server'),
                 'train_aux_ce_loss_aux_mode': aux_loss('aux'),
-                'samples_seen': samples, 'client_updates': len(jobs),
+                'samples_seen': samples, 'client_updates': (validate_pipeline_groups(jobs)
+                    if self.args['method'] == PIPELINE_METHOD else len(jobs)),
+                'server_samples_seen': sum(job.get('server_samples', job['samples']) for job in jobs),
                 'aux_updates': sum(job['auxiliary_updated'] for job in jobs),
                 'server_updates': self.server.version - server_before,
                 'server_sd_processed': len(jobs), 'total_expected_sd': expected,
@@ -440,6 +555,17 @@ class NASFLTrainer(SFLV2Trainer):
                 'simulated_time_s': None}
             if prototype_stats is not None:
                 row['global_prototype_stats'] = prototype_stats
+                row['server_batchnorm'] = self.server.batchnorm.summary()
+                bn_state = self.server.batchnorm.state_dict()
+                diagnostic = {**row['server_batchnorm'], 'round': round_id,
+                    'layers': {name: {domain: {key: tensor.tolist() for key, tensor in buffers.items()}
+                        for domain, buffers in domains.items()} for name, domains in bn_state['layers'].items()}}
+                with (self.run_dir / 'bn_statistics.jsonl').open('a') as stream:
+                    stream.write(json.dumps(diagnostic, allow_nan=False) + '\n')
+            if self.args['method'] == SD_ONLY_METHOD:
+                row['server_bn_counters'] = {name: int(layer.num_batches_tracked.item())
+                    for name, layer in self.server.model.named_modules()
+                    if isinstance(layer, torch.nn.modules.batchnorm._BatchNorm)}
             self.rounds.append(row)
             self.next_round = round_id
             self._progress_files()

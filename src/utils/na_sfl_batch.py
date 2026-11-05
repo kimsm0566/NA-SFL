@@ -8,7 +8,7 @@ def take_ready_batch(queue, max_samples, policy):
         raise ValueError('invalid server batch policy or capacity')
     selected, samples = [], 0
     while queue:
-        size = queue[0]['row']['samples']
+        size = queue[0]['row'].get('server_samples', queue[0]['row']['samples'])
         if type(size) is not int or size < 1 or size > max_samples:
             raise ValueError('one SD exceeds the server sample capacity')
         if samples + size > max_samples:
@@ -37,7 +37,7 @@ def validate_server_batches(jobs, batches, max_samples, policy):
         own = jobs[offset:offset+count]
         if (type(count) is not int or count < 1 or len(own) != count
                 or (policy == 'individual' and count != 1)
-                or batch['samples'] != sum(row['samples'] for row in own)
+                or batch['samples'] != sum(row.get('server_samples', row['samples']) for row in own)
                 or not 0 < batch['samples'] <= max_samples
                 or [tuple(row['job_id']) for row in own] != [tuple(j) for j in batch['job_ids']]
                 or batch['batch_id'] != batch['server_version_before']

@@ -19,7 +19,8 @@ from data.data import partition_metadata
 from data.na_sfl_data import balanced_partitions, load_local_cifar10
 from utils.deit_artifacts import csv_file, gpu_snapshot, json_file
 from utils.logger import get_logger
-from utils.na_sfl_config import DEFAULTS, PROTO_METHODS, comparison_configs
+from utils.na_sfl_config import (DEFAULTS, PROTO_METHODS, NO_AUX_METHODS, SD_ONLY_METHOD,
+    HYBRID_METHODS, PIPELINE_METHOD, comparison_configs)
 from utils.na_sfl_artifacts import (register_checkpoint, render_run, render_suite, target_summary,
                                    discard_failed_checkpoint, sweep_status, render_comparison)
 from utils.na_sfl_train import NASFLTrainer, learning_contract
@@ -35,6 +36,18 @@ def validate_training_gpu(gpu, *, allow_unprofiled=False):
 def run_na_sfl(args, comm):
     if comm.Get_size() != 1:
         raise ValueError('NA requires one process with live Client/Server threads')
+    if getattr(args, 'v3_bn_ablation', False):
+        from utils.na_sfl_bn_experiments import run_bn_ablation
+        return run_bn_ablation(args)
+    if getattr(args, 'hybrid_experiment', False):
+        from utils.na_sfl_hybrid_experiment import run_hybrid_experiment
+        return run_hybrid_experiment(args)
+    if getattr(args, 'sd_only_experiment', False):
+        from utils.na_sfl_sd_only_experiment import run_sd_only_experiment
+        return run_sd_only_experiment(args)
+    if getattr(args, 'pipeline_experiment', False):
+        from utils.na_sfl_pipeline_experiment import run_pipeline_experiment
+        return run_pipeline_experiment(args)
     if args.comparison:
         return run_comparison(args)
     if args.sweep:
@@ -85,8 +98,13 @@ def run_na_sfl(args, comm):
             'server_policy': config['server_policy'], 'server_max_batch_samples': config['server_max_batch_samples'],
             'auxiliary_policy': 'no Aux heads for v3/v4 or bare SplitFedV2; all heads train/FedAvg for NA v1/v2',
             'prototype_policy': config['prototype'] if config['method'] in PROTO_METHODS else None,
+            'server_bn_policy': config['bn_policy'],
+            'random_sd': config['random_sd'] if config['method'] in (*HYBRID_METHODS, SD_ONLY_METHOD) else None,
+            'pipeline': config['pipeline'],
+            'sd_loss_weight': 1. if config['method'] == SD_ONLY_METHOD else None,
             'residual_policy': config['v4'] if config['method'] == 'na_sfl_v4_residual' else None,
-            'prototype_client_inflight': 1 if config['method'] in PROTO_METHODS else None,
+            'prototype_client_inflight': (2 if config['method'] == PIPELINE_METHOD else 1)
+                if config['method'] in PROTO_METHODS else None,
             'queue_policy': 'bounded detached CUDA SD packets; storage backpressure is not cut-gradient waiting',
             'augmentation_rng': 'per-round/client/epoch/batch seed; CPU fork/restore protected by one loader lock',
             'fcfs_order': 'actual readiness; same seed does not guarantee identical order across counts',
@@ -132,9 +150,10 @@ def run_na_sfl(args, comm):
             'experiment_id': experiment_id, 'run_id': run_id, 'run_dir': str(root),
             'seed': config['seed'], 'method': config['method'], 'aux_client_count': config['aux_client_count'],
             'server_policy': config['server_policy'], 'server_max_batch_samples': config['server_max_batch_samples'],
-            'aux_client_ids': config['aux_client_ids'], 'auxiliary_heads': 0 if config['method'] in ('splitfedv2', *PROTO_METHODS) else config['n_clients'],
+            'aux_client_ids': config['aux_client_ids'], 'auxiliary_heads': 0 if config['method'] in NO_AUX_METHODS else config['n_clients'],
             'completed_rounds': trainer.next_round, 'target_rounds': config['rounds'],
             'samples_seen': sum(row['samples_seen'] for row in trainer.rounds), 'server_updates': trainer.server.version,
+            'server_samples_seen': sum(row['server_samples_seen'] for row in trainer.rounds),
             'server_sd_processed': sum(row['server_sd_processed'] for row in trainer.rounds),
             'initial_evaluation': trainer.initial_evaluation, 'initial_model_hashes': trainer.initial_hashes,
             'partition_sha256': partition_hash, 'data_sha256': trainer.data_sha256,
@@ -149,9 +168,19 @@ def run_na_sfl(args, comm):
             'gpu_regression_suite_executed': False,
             'training_scope': 'full local data' if config['max_batches_per_client'] is None else 'truncated requested training stage'}
         if config['method'] in PROTO_METHODS:
+            summary['server_batchnorm'] = trainer.server.batchnorm.summary()
+        if config['method'] == SD_ONLY_METHOD:
+            summary['server_batchnorm'] = {'policy': 'sd_only',
+                'running_counters': trainer.rounds[-1]['server_bn_counters'],
+                'proto_forward_calls': 0, 'global_prototype_updates': 0, 'sd_loss_weight': 1.}
+        if config['method'] in PROTO_METHODS:
             from utils.na_sfl_proto_artifacts import write_proto_artifacts
             summary.update(write_proto_artifacts(root, trainer.rounds, trainer.job_records,
                 trainer.aggregation_records, config=config, initial_evaluation=trainer.initial_evaluation, render=True))
+        if config['method'] == PIPELINE_METHOD:
+            from utils.na_sfl_pipeline_artifacts import write_pipeline_artifacts
+            summary.update(write_pipeline_artifacts(root, trainer.rounds, trainer.job_records,
+                config=config, initial_evaluation=trainer.initial_evaluation, render=True))
         json_file(root / 'summary.json', summary)
         json_file(root / 'status.json', {'status': summary['status'], 'completed': summary['completed'], 'completed_segment': True})
         seal_manifest(root, sources, kind='na_sfl_live_async_convergence')

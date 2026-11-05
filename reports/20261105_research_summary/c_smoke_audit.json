@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "rounds": 2,
+  "jobs": 480,
+  "client_visits": 60000,
+  "client_optimizer_steps": 240,
+  "server_updates": 480,
+  "actual_sd_count": 49220,
+  "selected_sd_count": 1220,
+  "overlapping_second_forward_first_uplink_pairs": 240,
+  "metrics": {
+    "max_inflight": 2,
+    "max_pending_graphs": 2,
+    "max_completion_queue_depth": 1,
+    "client_forward_uplink_overlap_lower_bound_s": 15.607947564154749,
+    "client_forward_uplink_overlap_clock": "aligned_cuda_events",
+    "gpu_peak_allocated_bytes": 10759894528,
+    "gpu_peak_reserved_bytes": 16601055232
+  }
+}

@@ -18,5 +18,45 @@
   "mpi": "Open MPI 4.1.2 (import compatibility only; training uses one process)",
   "original_image": "hsfl-research-wifi:20261024 (local research image; not a public pull target)",
   "caution": "Observed full inventories include unrelated legacy dependencies. requirements.txt includes only active dependency closure. Kernel/driver remain host-owned.",
-  "gpu_selection_policy": "Default measured GPU allowlist; --allow-unprofiled-gpu opt-in; busy/free80% preserved; prefer full GPU UUID."
+  "gpu_selection_policy": "Default measured GPU allowlist; --allow-unprofiled-gpu opt-in; busy/free80% preserved; prefer full GPU UUID.",
+  "publication_update": "2026-11-05",
+  "additional_reference_dependencies": [
+    {
+      "name": "nltk",
+      "version": "3.10.4"
+    },
+    {
+      "name": "memory-profiler",
+      "version": "0.61.0"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.70.1"
+    },
+    {
+      "name": "regex",
+      "version": "2026.9.29"
+    },
+    {
+      "name": "click",
+      "version": "8.5.0"
+    },
+    {
+      "name": "defusedxml",
+      "version": "0.7.1"
+    },
+    {
+      "name": "joblib",
+      "version": "1.6.0"
+    },
+    {
+      "name": "cloudpickle",
+      "version": "3.1.2"
+    },
+    {
+      "name": "psutil",
+      "version": "7.2.2"
+    }
+  ],
+  "dependency_scope": "base NA closure44 + recorded FedOptima reference closure9; no server credentials or local wheel files"
 }

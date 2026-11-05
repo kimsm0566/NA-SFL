@@ -1,0 +1,58 @@
+from torch.multiprocessing import Queue, Event, Lock
+from util.util import get_average_model
+
+
+class Aggregator:
+    def __init__(self, model_num, global_model_num, global_model=None):
+        self.model_num = model_num
+        self.global_model_num = global_model_num
+        self.models = Queue(model_num)
+        self.weights = Queue(model_num)
+        self.global_models = Queue(global_model_num)
+        self.global_model = global_model
+        self.global_model_version = 0
+        self.event = Event()
+        self.lock = Lock()
+
+    def add_model(self, model, weight=None):
+        self.models.put(model, block=False)
+        self.weights.put(weight, block=False)
+
+    def add_global_model(self, global_model, global_model_version):
+        self.global_model = global_model
+        self.global_model_version = global_model_version
+        self.event.set()
+
+    def add_global_models(self, model):
+        for _ in range(self.global_model_num):
+            self.global_models.put(model)
+        self.event.clear()
+
+    def aggregate(self, timing=None):
+        models = []
+        weights = []
+        for _ in range(self.model_num):
+            models.append(self.models.get())
+            weight = self.weights.get()
+            if weight is not None:
+                weights.append(weight)
+        if timing:
+            timing.start()
+        global_model = get_average_model(models, weights)
+        if timing:
+            timing.stop()
+        self.add_global_models(global_model)
+
+    def get_global_model(self):
+        self.event.wait()
+        self.event.clear()
+        return self.global_model, self.global_model_version
+
+    def get_global_models(self):
+        global_model = self.global_models.get()
+        if self.global_models.empty():
+            self.event.set()
+        return global_model
+
+    def task_done(self):
+        self.event.wait()

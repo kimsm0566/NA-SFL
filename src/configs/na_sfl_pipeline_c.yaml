@@ -1,0 +1,40 @@
+# C only: preserve Prototype+Random SD10%, two in-flight graphs, one Client step/group.
+method: na_sfl_trainer_sender_pipeline
+rounds: 100
+seed: 42
+aux_client_count: 0
+slow_client_ids: [0, 5]
+server_policy: individual
+target_accuracy: 70
+bn_policy: dual_running_stats_shared_affine
+random_sd: {sample_ratio: 0.1, sample_seed: 42}
+pipeline:
+  enabled: true
+  trainer_sender_decoupled: true
+  max_inflight_per_client: 2
+  accumulation_batches: 2
+  client_step_per_group: true
+  per_client_send_worker: 1
+  sender_queue_max_jobs: 2
+  completion_queue_max_jobs: 2
+  job_deduplication: true
+  group_loss_weighting: equal_batch
+prototype:
+  fast_sd_weight: 0.8
+  fast_proto_weight: 0.2
+  slow_proto_weight: 1.0
+  alignment_weight_beta: 0.1
+  alignment_reduction: mse
+client_compute_seconds: {forward: 0.3, backward: 0.6, auxiliary: 0}
+network:
+  type: mininet
+  slow_client_ids: [0, 5]
+  fast_uplink_mbps: 100
+  fast_downlink_mbps: 100
+  slow_uplink_mbps: 20
+  slow_downlink_mbps: 50
+  rtt_ms: 10
+  send_buffer_sd: 3
+  round_rate_variation: 0.1
+  rate_seed: 42
+result_path: results/20261105_trainer_sender_pipeline_c_seed42

@@ -1,0 +1,3 @@
+name,completed_rounds,last10_mean,last10_mean_exact,final_accuracy,best_accuracy,best_round,tta_70,first_ge_70,training_through_evaluation_s,upload_bytes,download_bytes,upload_float_bytes,download_float_bytes,model_upload_bytes,model_download_bytes,total_upload_bytes_including_models,total_download_bytes_including_models,server_updates
+NA-SFLv5,100,68.633,68.633,65.8,71.44,98,8646.863087469945,75,11622.24404749996,325850124432,325826534880,325811437568,325811437568,2719792920,2746992890,328569917352,328573527770,24000
+v5 without Prototype (SD CE=1),100,67.143,67.143,65.72,72.43,90,9350.42636265501,82,11455.432942061918,322598375080,322575482680,322568192000,322568192000,2719792920,2746992890,325318168000,325322475570,24000

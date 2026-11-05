@@ -64,3 +64,13 @@ UL/DL bytes는 application payload+header+8byte prefix이며 TCP/IP/L2 overhead�
 | `utils/na_sfl_artifacts.py`, `na_sfl_proto_artifacts.py` | 지표·그래프·TTA·checkpoint 보관 |
 | `utils/deit_artifacts.py`, `sflv2_metrics.py` | checkpoint/RNG/CSV/JSON·source snapshot/manifest |
 | `checks/check_environment.py`, `tests/` | 읽기 전용 환경 확인·반복 CPU 검사 |
+
+## 2026-11-05: v5 / Prototype 제거 / C pipeline
+
+v5는 `utils/na_sfl_hybrid.py`의 RandomSDClient와 기존 PrototypeServer/HYBRID_JOB을 사용한다. Slow는 전체 batch의 class mean과 random SD10%를 하나의 Job으로 보내고, 두 gradient를 같은 graph에 적용한다. Fast/Slow 전원 SD0.8+Proto0.2/MSEβ0.1/DualBN이며 평가는 원본SD다.
+
+SDOnlyClient는 Proto 생성/전송/집계를 제거하고 전원 SD CE1.0을 쓴다. Fast 전체/Slow10%와 Client full forward·pacing·방문수 FedAvg를 유지한다.
+
+C는 `na_sfl_pipeline.py`의 PipelineClient와 기존 live actor/TCP를 연결한다. Trainer만 model/autograd/optimizer를 소유하고 단일 Sender/별도 Receiver를 재사용한다. 동일 parameter version에서2Forward, 각 Job은 Server Adam1회, gradient각1/2로 누적 후 Client Adam1회다. window/graph/send/completion은2로 bounded이며 B는 없다. `na_sfl_pipeline_artifacts.py`는 모델 전용 CUDA 이벤트와 UL의 실제 중첩, 실제 Future 미소비 수, 서버 receive-to-service/내부queue와 Trainer idle/pending을 분리한다.
+
+`na_sfl_pipeline_experiment.py`는 기존 CLI를 사용해 actual2roundSmoke를 감사한 뒤 fresh100round를 실행한다. 같은 GPU UUID/초기값/분할/입력/링크/BN/bytes/drain을 검사한다. A/C에는 pipeline과 accumulation/update빈도 효과가 섞여 있으며 B 대조군을 구현하지 않았다. [현재 실행 명령](../03-experiments/README.md)과 [확정 결과](../../11-05/07-project-status/README.md)를 참고한다.

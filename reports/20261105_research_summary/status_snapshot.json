@@ -1,0 +1,17 @@
+{
+  "as_of_kst": "2026-11-05T17:35:31.461971+09:00",
+  "sd_only": {
+    "status": "completed",
+    "completed_rounds": 100,
+    "final_accuracy": 65.72,
+    "last10_mean": 67.143
+  },
+  "C_pipeline": {
+    "status": "running",
+    "stage": "run_100round",
+    "completed_stage_rounds": 1,
+    "smoke_passed": true,
+    "main_100round_completed": false
+  },
+  "B": "not implemented or run"
+}

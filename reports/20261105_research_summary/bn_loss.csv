@@ -1,0 +1,4 @@
+condition,rounds,final_accuracy,best_accuracy,last10_mean
+Loss0.8:0.2 sharedBN,100,57.06,65.76,62.22
+ProtoBN Freeze,100,37.22,45.05,37.246
+DualBN,100,60.44,66.7,62.453

@@ -34,3 +34,9 @@ venv/
 /docs/10-*/
 /docs/11-01/
 /docs/11-02/01-github-release/
+
+# Local reference dependencies/data and publication operations.
+**/.hsfl_deps/
+/src/reference_external/FedOptima/data/
+/src/reference_external/FedOptima/results/
+/docs/11-05/06-github-update/

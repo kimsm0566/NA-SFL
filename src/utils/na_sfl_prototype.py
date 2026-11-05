@@ -175,10 +175,13 @@ class PrototypeServer(SFLV2Server):
     """Individual FCFS v3/v4 jobs with one combined backward/optimizer step."""
 
     def __init__(self, model, config):
-        if config.get('method') not in ('na_sfl_v3_proto', 'na_sfl_v4_residual'):
+        from utils.na_sfl_config import PROTO_METHODS, HYBRID_METHODS
+        if config.get('method') not in PROTO_METHODS:
             raise ValueError('PrototypeServer requires a prototype method')
         super().__init__(model, config)
         self.feature_shape = _feature_shape(config['boundary_shape_per_sample'])
+        self.hybrid_config = dict(config['random_sd']) if config['method'] in HYBRID_METHODS else None
+        self.slow_client_ids = config.get('slow_client_ids', [])
         self.prototype_config = dict(config['prototype'])
         for key in ('fast_sd_weight', 'fast_proto_weight', 'slow_proto_weight', 'alignment_weight_beta'):
             value = self.prototype_config[key]
@@ -187,6 +190,8 @@ class PrototypeServer(SFLV2Server):
         if self.prototype_config['alignment_reduction'] not in ('mse', 'l2_squared'):
             raise ValueError('alignment reduction must be mse or l2_squared')
         self.memory = GlobalPrototypeMemory(self.num_classes, self.feature_shape, device=self.device)
+        from utils.na_sfl_bn import ServerBatchNorm
+        self.batchnorm = ServerBatchNorm(model, config.get('bn_policy', 'shared_original'))
         self.seen_jobs = set()
         self.v4_config = None
         self.residual_bank = None
@@ -218,7 +223,7 @@ class PrototypeServer(SFLV2Server):
 
     def extra_state_dict(self):
         state = {'memory': self.memory.state_dict(), 'server_version': self.version,
-                'seen_jobs': sorted(self.seen_jobs)}
+                'seen_jobs': sorted(self.seen_jobs), 'batchnorm': self.batchnorm.state_dict()}
         if self.residual_bank is not None:
             state['residual_bank'] = self.residual_bank.state_dict()
         return state
@@ -244,6 +249,10 @@ class PrototypeServer(SFLV2Server):
                 raise ValueError('residual/global checkpoint lifecycle or job set differs')
         elif 'residual_bank' in state:
             raise ValueError('v3 checkpoint cannot include residual state')
+        if 'batchnorm' in state:
+            self.batchnorm.load_state_dict(state['batchnorm'])
+        elif self.batchnorm.policy != 'shared_original':
+            raise ValueError('BN experiment checkpoint is missing domain state')
         self.memory, self.residual_bank = memory, bank
         self.version, self.seen_jobs = version, set(seen)
 
@@ -266,8 +275,14 @@ class PrototypeServer(SFLV2Server):
         if packet.get('return_cut_gradient') is not True:
             raise ValueError('prototype jobs must return their input gradient')
         kind = packet['job_kind']
-        if kind not in ('SD_JOB', 'PROTO_JOB'):
+        if kind not in ('SD_JOB', 'PROTO_JOB', 'HYBRID_JOB'):
             raise ValueError('unknown prototype job kind')
+        if self.hybrid_config is not None:
+            expected = ('HYBRID_JOB' if self.hybrid_config['sample_ratio'] > 0 else 'PROTO_JOB') if job[1] in self.slow_client_ids else 'SD_JOB'
+            if kind != expected:
+                raise ValueError('incorrect Hybrid job kind for Client mode')
+        elif kind == 'HYBRID_JOB':
+            raise ValueError('HYBRID_JOB requires Random SD method')
         x, labels = packet['activation'], packet['labels']
         _tensor(x, self.device, 'activation'); _tensor(labels, self.device, 'labels')
         if kind == 'SD_JOB':
@@ -286,9 +301,26 @@ class PrototypeServer(SFLV2Server):
             _tensor(counts, self.device, 'counts')
             samples = packet.get('actual_batch_size', int(counts.sum().item()))
             validate_prototypes(x, labels, counts, self.feature_shape, self.num_classes, samples)
+        selected, selected_labels = None, None
+        if kind == 'HYBRID_JOB':
+            from utils.na_sfl_proto_protocol import request_message
+            checked = {**packet, 'row': {'job_id': job, 'client_id': job[1],
+                'run_id': 'server-validation', 'samples': samples}}
+            request_message(checked)
+            if packet['sample_ratio'] != self.hybrid_config['sample_ratio']:
+                raise ValueError('Hybrid sample ratio differs from experiment configuration')
+            selected, selected_labels = packet['selected_sd'], packet['selected_labels']
+            for key in ('selected_sd', 'selected_labels', 'selected_indices'):
+                _tensor(packet[key], self.device, key)
+            if (selected_labels >= self.num_classes).any().item():
+                raise ValueError('selected labels exceed classifier classes')
+            selected = selected.detach().clone().requires_grad_(True)
         leaf = x.detach().clone().requires_grad_(True)
         self.optimizer.zero_grad(set_to_none=True)
         cfg = self.prototype_config
+        bn_calls_before = dict(self.batchnorm.forward_calls)
+        bn_updates_before = dict(self.batchnorm.running_updates)
+        early_proto_before = self.batchnorm.proto_forwards_before_first_sd
         pseudo = {'activation': None, 'labels': None, 'weights': None,
             'pseudo_samples_generated': 0, 'pseudo_fallback_classes': [],
             'pseudo_fallback_reasons': {}, 'pseudo_donors': [],
@@ -302,12 +334,16 @@ class PrototypeServer(SFLV2Server):
                 protos, classes, prototype_time = leaf, labels, 0.
             def forward():
                 nonlocal pseudo
-                sd_logits = self.model(leaf) if kind == 'SD_JOB' else None
-                logits = self.model(protos)
+                sd_logits = None
+                if kind in ('SD_JOB', 'HYBRID_JOB'):
+                    with self.batchnorm.domain('sd'):
+                        sd_logits = self.model(leaf if kind == 'SD_JOB' else selected)
+                with self.batchnorm.domain('proto'):
+                    logits = self.model(protos)
                 _finite(logits, 'prototype logits')
                 if sd_logits is not None:
                     _finite(sd_logits, 'SD logits')
-                    sd_loss = F.cross_entropy(sd_logits, labels)
+                    sd_loss = F.cross_entropy(sd_logits, labels if kind == 'SD_JOB' else selected_labels)
                 else:
                     sd_loss = leaf.sum() * 0.
                 weights = counts.to(protos.dtype)
@@ -315,14 +351,15 @@ class PrototypeServer(SFLV2Server):
                 align = self.memory.alignment_loss(protos, classes, counts, cfg['alignment_reduction'])
                 combined = proto_loss + cfg['alignment_weight_beta'] * align
                 total = (cfg['fast_sd_weight'] * sd_loss + cfg['fast_proto_weight'] * combined
-                    if kind == 'SD_JOB' else cfg['slow_proto_weight'] * combined)
+                    if kind in ('SD_JOB', 'HYBRID_JOB') else cfg['slow_proto_weight'] * combined)
                 pseudo_loss = leaf.sum() * 0.
                 # Gamma-zero skips generation AND the extra classifier/BN forward.
                 if (kind == 'PROTO_JOB' and self.v4_config is not None
                         and self.v4_config['pseudo_loss_weight_gamma'] > 0):
                     pseudo = self.residual_bank.make_pseudo(protos, classes, counts, job, self.v4_config)
                     if pseudo['activation'] is not None:
-                        pseudo_logits = self.model(pseudo['activation'])
+                        with self.batchnorm.domain('proto'):
+                            pseudo_logits = self.model(pseudo['activation'])
                         _finite(pseudo_logits, 'pseudo logits')
                         pseudo_loss = (F.cross_entropy(pseudo_logits, pseudo['labels'], reduction='none')
                             * pseudo['weights']).sum()
@@ -335,6 +372,11 @@ class PrototypeServer(SFLV2Server):
             _gradients(self.model)
             _finite(leaf.grad, 'prototype/cut gradient')
             gradient = leaf.grad.detach().clone()  # Capture before the sole optimizer step.
+            if kind == 'HYBRID_JOB':
+                _finite(selected.grad, 'selected SD gradient')
+                gradient = {'grad_selected_sd': selected.grad.detach().clone(),
+                    'grad_prototypes': gradient, 'selected_indices': packet['selected_indices'].detach().clone(),
+                    'classes': labels.detach().clone()}
             _, optimizer_time = _timed(self.device, self.optimizer.step)
         self.memory.accumulate(protos, classes, counts)
         if self.residual_bank is not None and kind == 'SD_JOB':
@@ -351,12 +393,30 @@ class PrototypeServer(SFLV2Server):
             'optimizer_cuda_s': optimizer_time, 'gradient_scale_to_local_mean': 1.,
             'L_SD': float(sd_loss.item()), 'L_ProtoCE': float(proto_loss.item()),
             'L_Align': float(align.item()), 'L_Pseudo': float(pseudo_loss.item()), 'L_total': float(loss.item()),
+            'L_proto': float((proto_loss + cfg['alignment_weight_beta'] * align).item()),
+            'L_fast_weighted': float(loss.item()) if kind == 'SD_JOB' else None,
+            'bn_policy': self.batchnorm.policy,
+            'bn_forward_calls': {key: self.batchnorm.forward_calls[key] - bn_calls_before[key]
+                                 for key in ('sd', 'proto')},
+            'bn_running_updates': {key: self.batchnorm.running_updates[key] - bn_updates_before[key]
+                                   for key in ('sd', 'proto')},
+            'bn_proto_before_first_sd': self.batchnorm.proto_forwards_before_first_sd - early_proto_before,
             'proto_class_ids': classes.detach().cpu().tolist(),
             'proto_counts': counts.detach().cpu().tolist(),
             'prototype_compute_s': prototype_time,
             'server_forward_calls': (2 if kind == 'SD_JOB' else 1) + int(pseudo['activation'] is not None),
             'server_sd_forward_calls': int(kind == 'SD_JOB'), 'server_proto_forward_calls': 1,
             'server_optimizer_step_id': self.version}
+        if kind == 'HYBRID_JOB':
+            # Prototype correct remains a separately named diagnostic; selected
+            # image accuracy must never be scaled up to full-batch accuracy.
+            selected_correct = int((sd_logits.argmax(1) == selected_labels).sum().item())
+            item.update(sd_count=len(selected), selected_sd_count=len(selected),
+                selected_sd_correct=selected_correct, selected_sd_accuracy=100*selected_correct/len(selected),
+                proto_correct_weighted=correct, correct=selected_correct,
+                correct_denominator=len(selected), sample_ratio=packet['sample_ratio'],
+                selected_indices=packet['selected_indices'].detach().cpu().tolist(),
+                L_slow_weighted=float(loss.item()), server_forward_calls=2, server_sd_forward_calls=1)
         if self.residual_bank is not None:
             item.update({key: value for key, value in pseudo.items() if key not in ('activation', 'labels', 'weights')})
             item['server_pseudo_forward_calls'] = int(pseudo['activation'] is not None)

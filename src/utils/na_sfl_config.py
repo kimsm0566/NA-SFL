@@ -23,9 +23,19 @@ DEFAULTS = {
     'server_policy': 'individual', 'server_max_batch_samples': 512,
     'client_compute_seconds': {}, 'network': None,
     'slow_client_ids': [0, 5], 'prototype': {}, 'v4': {}, 'metrics': {}, 'smoke_test': False,
+    'bn_policy': 'shared_original', 'random_sd': {}, 'pipeline': {},
 }
 
-PROTO_METHODS = ('na_sfl_v3_proto', 'na_sfl_v4_residual')
+HYBRID_METHOD = 'na_sfl_proto_random_sd'
+PIPELINE_METHOD = 'na_sfl_trainer_sender_pipeline'
+HYBRID_METHODS = (HYBRID_METHOD, PIPELINE_METHOD)
+SD_ONLY_METHOD = 'na_sfl_random_sd_only'
+PROTO_METHODS = ('na_sfl_v3_proto', 'na_sfl_v4_residual', *HYBRID_METHODS)
+NO_AUX_METHODS = ('splitfedv2', SD_ONLY_METHOD, *PROTO_METHODS)
+PIPELINE_DEFAULTS = dict(enabled=True, trainer_sender_decoupled=True,
+    max_inflight_per_client=2, accumulation_batches=2, client_step_per_group=True,
+    per_client_send_worker=1, sender_queue_max_jobs=2, completion_queue_max_jobs=2,
+    job_deduplication=True, group_loss_weighting='equal_batch')
 PROTOTYPE_DEFAULTS = dict(fast_sd_weight=.5, fast_proto_weight=.5, slow_proto_weight=1.,
     alignment_weight_beta=.1, alignment_reduction='mse', global_update='once_per_round',
     weighted_by_class_sample_count=True)
@@ -36,6 +46,10 @@ V4_DEFAULTS = dict(pseudo_loss_weight_gamma=.25, pseudo_gradient_to_client=True,
 
 
 def _prototype_options(config):
+    from utils.na_sfl_bn import BN_POLICIES
+    if (config['bn_policy'] not in BN_POLICIES or
+            (config['method'] not in ('na_sfl_v3_proto', *HYBRID_METHODS) and config['bn_policy'] != 'shared_original')):
+        raise ValueError('non-shared BN policies require NA-SFLv3')
     for name, defaults in (('prototype', PROTOTYPE_DEFAULTS), ('v4', V4_DEFAULTS)):
         raw = config[name]
         allowed = set(defaults) | ({'enabled'} if name == 'v4' else set())
@@ -65,8 +79,42 @@ def _prototype_options(config):
     if 'enabled' in v and (type(v['enabled']) is not bool or v['enabled'] != enabled):
         raise ValueError('v4.enabled must agree with selected method')
     v['enabled'] = enabled
+    random_sd = config['random_sd']
+    if not isinstance(random_sd, dict) or set(random_sd) - {'sample_ratio', 'sample_seed'}:
+        raise ValueError('invalid random_sd configuration')
+    if config['method'] in (*HYBRID_METHODS, SD_ONLY_METHOD):
+        random_sd = {'sample_ratio': .1, 'sample_seed': 42, **random_sd}
+        q = _positive(random_sd['sample_ratio'], 'sample_ratio', True)
+        if q > 1 or type(random_sd['sample_seed']) is not int or not 0 <= random_sd['sample_seed'] < 2**32:
+            raise ValueError('invalid sample ratio or sample seed')
+        random_sd['sample_ratio'] = q
+        if config['method'] == SD_ONLY_METHOD:
+            if q == 0 or (p['fast_sd_weight'], p['fast_proto_weight'],
+                         p['slow_proto_weight'], p['alignment_weight_beta']) != (1., 0., 0., 0.):
+                raise ValueError('SD-only requires positive sampling and pure unit-weight SD CE')
+        elif (config['bn_policy'] != 'dual_running_stats_shared_affine'
+                or (p['fast_sd_weight'], p['fast_proto_weight'], p['slow_proto_weight']) != (.8, .2, 1.)):
+            raise ValueError('Random SD Hybrid requires Dual BN and Fast0.8:0.2 / q0 Slow1.0 prototype')
+    elif random_sd:
+        raise ValueError('random_sd settings require a Random SD method')
+    config['random_sd'] = random_sd
+    raw_pipeline = config['pipeline']
+    if not isinstance(raw_pipeline, dict):
+        raise ValueError('pipeline must be a mapping')
+    if config['method'] == PIPELINE_METHOD:
+        if set(raw_pipeline) - set(PIPELINE_DEFAULTS):
+            raise ValueError('unknown pipeline settings')
+        actual = {**PIPELINE_DEFAULTS, **raw_pipeline}
+        if (actual != PIPELINE_DEFAULTS or any(type(actual[k]) is not type(v)
+                for k, v in PIPELINE_DEFAULTS.items())
+                or config['random_sd'] != {'sample_ratio': .1, 'sample_seed': 42}
+                or (p['alignment_weight_beta'], p['alignment_reduction']) != (.1, 'mse')):
+            raise ValueError('only authorized C w2_accum2 / Random SD10% is implemented')
+        config['pipeline'] = actual
+    elif raw_pipeline:
+        raise ValueError('pipeline settings require the C pipeline method')
     ids = config['slow_client_ids']
-    if config['method'] in PROTO_METHODS:
+    if config['method'] in (*PROTO_METHODS, SD_ONLY_METHOD):
         if (not isinstance(ids, list) or len(set(ids)) != len(ids)
                 or any(type(i) is not int or not 0 <= i < config['n_clients'] for i in ids)):
             raise ValueError('invalid prototype Slow Client IDs')
@@ -133,6 +181,12 @@ def load_config(path=None, overrides=None):
     raw = {**raw, **(overrides or {})}
     if set(raw) - set(DEFAULTS):
         raise ValueError('unknown NA options: ' + str(sorted(set(raw) - set(DEFAULTS))))
+    if raw.get('method') in HYBRID_METHODS:
+        raw.setdefault('bn_policy', 'dual_running_stats_shared_affine')
+        raw['prototype'] = {'fast_sd_weight': .8, 'fast_proto_weight': .2, **raw.get('prototype', {})}
+    if raw.get('method') == SD_ONLY_METHOD:
+        raw['prototype'] = {'fast_sd_weight': 1., 'fast_proto_weight': 0.,
+            'slow_proto_weight': 0., 'alignment_weight_beta': 0., **raw.get('prototype', {})}
     config = {**DEFAULTS, **raw}
     if (config['mode'], config['model'], config['dataset']) != ('live_async', 'resnet18_cifar', 'cifar10'):
         raise ValueError('NA initially requires live_async / CIFAR ResNet18 / CIFAR10')
@@ -159,7 +213,7 @@ def load_config(path=None, overrides=None):
     target = config['target_accuracy']
     if target is not None and not 0 < _positive(target, 'target_accuracy') <= 100:
         raise ValueError('target accuracy must be in (0,100]')
-    if config['method'] not in ('splitfedv2', 'na_sfl_v1', 'na_sfl_v2', 'hybrid_no_aux_avg', *PROTO_METHODS):
+    if config['method'] not in ('na_sfl_v1', 'na_sfl_v2', 'hybrid_no_aux_avg', *NO_AUX_METHODS):
         raise ValueError('unsupported NA comparison method')
     if (config['server_policy'] not in ('individual', 'concat')
             or (config['method'] == 'na_sfl_v2') != (config['method'].startswith('na_sfl_')

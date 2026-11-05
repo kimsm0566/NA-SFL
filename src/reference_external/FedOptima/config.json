@@ -1,0 +1,16 @@
+{
+  "experiment_name": "test",
+  "server_address": "127.0.0.1",
+  "port": 50000,
+  "client_num": 2,
+  "dataset_name": "CIFAR-10",
+  "model_name": "VGG5",
+  "data_size": 10000,
+  "test_data_size": 10000,
+  "max_val_step": 10,
+  "non_improve_step": 30,
+  "batch_size": 100,
+  "layer_num_on_client": 1,
+  "uplink_bandwidth": 50,
+  "downlink_bandwidth": 50
+}

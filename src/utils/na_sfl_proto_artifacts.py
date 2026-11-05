@@ -18,9 +18,11 @@ LOSSES = ('L_SD', 'L_ProtoCE', 'L_Align', 'L_Pseudo', 'L_total')
 TIMINGS = ('client_forward_compute_s', 'prototype_compute_s', 'server_prototype_compute_s',
            'upload_wait_or_block_s', 'upload_wire_time_s', 'server_queue_wait_s',
            'server_model_compute_s', 'gradient_download_time_s', 'gradient_wait_s',
-           'client_backward_update_s')
+           'client_backward_update_s', 'sampling_compute_s', 'sd_serialization_time_s',
+           'gradient_serialization_time_s')
 BYTE_FIELDS = ('upload_bytes', 'download_bytes', 'upload_payload_bytes', 'download_payload_bytes',
-               'upload_header_bytes', 'download_header_bytes', 'activation_bytes')
+               'upload_header_bytes', 'download_header_bytes', 'activation_bytes',
+               'upload_float_bytes', 'download_float_bytes')
 IDLE_DEFINITION = ('round_train_s minus summed server_model_compute_s; includes communication, '
                    'queue and management time; not physical GPU utilization')
 
@@ -78,7 +80,12 @@ def _job(raw, run_id):
     row.setdefault('batch_id', row.get('local_batch_index', job_id[2]))
     row.setdefault('proto_class_ids', [])
     row.setdefault('proto_counts', [])
-    row['sd_count'] = row['samples'] if row['job_kind'] == 'SD_JOB' else 0
+    row['sd_count'] = row['samples'] if row['job_kind'] == 'SD_JOB' else row.get('selected_sd_count', 0)
+    row['actual_sd_count'] = row['sd_count']
+    row['actual_proto_count'] = len(row['proto_class_ids'])
+    row.setdefault('sample_ratio', 1. if row['job_kind'] == 'SD_JOB' else 0.)
+    row.setdefault('upload_float_bytes', row.get('activation_bytes', 0))
+    row.setdefault('download_float_bytes', row.get('gradient_bytes', 0))
     aliases = {'server_arrival_ts': ('sd_receive_complete_s', 'enqueue_s'),
                'server_start_ts': ('server_start_s',), 'server_end_ts': ('server_end_s',),
                'upload_done_ts': ('sd_receive_complete_s',),
@@ -110,10 +117,13 @@ def _job(raw, run_id):
 
 
 def _totals(jobs):
-    slow = [job for job in jobs if job['job_kind'] == 'PROTO_JOB']
+    slow = [job for job in jobs if job['job_kind'] in ('PROTO_JOB', 'HYBRID_JOB')]
     result = {key: _sum(jobs, key) for key in BYTE_FIELDS}
     result.update(total_sd_jobs=sum(job['job_kind'] == 'SD_JOB' for job in jobs),
                   total_proto_jobs=len(slow),
+                  total_hybrid_jobs=sum(job['job_kind'] == 'HYBRID_JOB' for job in jobs),
+                  actual_sd_count=_sum(jobs, 'actual_sd_count'),
+                  actual_proto_count=_sum(jobs, 'actual_proto_count'),
                   avg_classes_per_slow_proto=(sum(len(job['proto_class_ids']) for job in slow)
                                              / len(slow) if slow else None))
     result.update({key: _weighted(jobs, key) for key in LOSSES})
@@ -208,6 +218,7 @@ def write_proto_artifacts(run_dir, rounds, jobs, aggregation_records, *, config,
             drain = _first(raw, 'worker_drain_elapsed_s', default=train)
             item = {'round': row['round'], 'client_id': cid,
                     'client_group': 'slow' if cid in slow_ids else 'fast',
+                    'sample_ratio': config.get('random_sd', {}).get('sample_ratio', 0.) if cid in slow_ids else 1.,
                     'samples': _sum(client_jobs, 'samples'), 'jobs': len(client_jobs),
                     **_totals(client_jobs),
                     **{key: _sum(client_jobs, key) if any(job.get(key) is not None for job in client_jobs)

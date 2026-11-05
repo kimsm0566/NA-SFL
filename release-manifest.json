@@ -1,9 +1,15 @@
 {
-  "schema": "na_sfl_public_source_v1",
-  "date": "2026-11-02",
+  "schema": "na_sfl_public_source_v2",
+  "date": "2026-11-05",
   "repository": "kimsm0566/NA-SFL",
   "visibility": "public",
   "self_excluded_from_file_hashes": true,
+  "source_basis_sha256": "6d405324f6005ce3e5ecff893332507f3b7b296cb9c0549d12a5a7cc5f79a0df",
+  "source_files": 121,
+  "runtime_and_config_unchanged": true,
+  "export_only_test_import_fix": [
+    "tests/test_fedoptima_protocol_cpu.py"
+  ],
   "files": [
     {
       "path": ".dockerignore",
@@ -19,9 +25,9 @@
     },
     {
       "path": ".gitignore",
-      "bytes": 485,
-      "sha256": "840cc9d3f7adf441687fc9d872cc0bd2553cdfdb1d64da860a22d3e72e068f08",
-      "git_blob_sha1": "baf1a2301c6e552be90254085b0bcd1bb4354b9a"
+      "bytes": 678,
+      "sha256": "3f3669073a06a06d64720611e571f6f8cda50ad4db946f3f749e24381bbd9b13",
+      "git_blob_sha1": "4e32f38e0cb216a522069eeb7035314b2530e98d"
     },
     {
       "path": "Dockerfile",
@@ -31,15 +37,15 @@
     },
     {
       "path": "README.md",
-      "bytes": 5070,
-      "sha256": "3cea781869298b8152aed441ce33f610381e46ee9161442b6a53cd8aadaea2ed",
-      "git_blob_sha1": "39e7b900c14feeb254d5f65b2325820553fab720"
+      "bytes": 6879,
+      "sha256": "39c50683b7e63ca030ea480ce5b230716376785cac28e1c36dcca90ae385bf45",
+      "git_blob_sha1": "56c6fc442a2aceb7dee5b7b79d204de71c20eb49"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 1897,
-      "sha256": "e5b1195f4c5e4b3526b9b8f869b690a5ca045c0d3c4cfdc3e434f49c334a08dc",
-      "git_blob_sha1": "7439f728b36db019239676933372a7641d4d74cd"
+      "bytes": 2477,
+      "sha256": "c29e4f73e52006082bd2d2eacd1f637a91777ebcc35ed6d1a4ee11fe916e3d68",
+      "git_blob_sha1": "68330838e5c9b421913a9baf27ec0cb82edb0d53"
     },
     {
       "path": "compose.yaml",
@@ -49,27 +55,39 @@
     },
     {
       "path": "docs/11-02/02-portable-setup/README.md",
-      "bytes": 12946,
-      "sha256": "31d23c8a8220a93cd762f88eb1dd28ffa61ab9d67e064d201652a03537936bab",
-      "git_blob_sha1": "7a2e28b15a54d0898b2ad82190c1cacaac79d7e6"
+      "bytes": 13608,
+      "sha256": "ab19ce4fb7f89dfcaf648a81351a4cf4ddd5d915304ec85d65820e329c163594",
+      "git_blob_sha1": "c3caca02d8757b1b00bcd94e69d09f7100cc0527"
     },
     {
       "path": "docs/11-02/03-experiments/README.md",
-      "bytes": 7954,
-      "sha256": "9ada98558446875371b083b057e72f09dcca980c9375f96f777c9975c4af34a4",
-      "git_blob_sha1": "65c0b70b7da9f358b52c2e2f22db90c39c181850"
+      "bytes": 12525,
+      "sha256": "321e07e30f46989df6066b667e9c5604997042a53e8bc919b4cc08ba2536b659",
+      "git_blob_sha1": "5eff2aae109815bd3abebc1cfa3db20878272c75"
     },
     {
       "path": "docs/11-02/04-architecture/README.md",
-      "bytes": 6793,
-      "sha256": "32087454cc8923809e797e039a02f257f3249590ee7c5df5c7d0f1617f9847ec",
-      "git_blob_sha1": "f9ea810b3dbef5a009310732b5e4d63f011ad54a"
+      "bytes": 8341,
+      "sha256": "59b90cd375dde5b8c393af5d418b797e8125772b3dec0117ee8aedabe1dbd358",
+      "git_blob_sha1": "19e7375c382a9e9279962eae8dc62bd778b9b299"
     },
     {
       "path": "docs/11-02/05-reproducibility/README.md",
-      "bytes": 4678,
-      "sha256": "3ca20beff8baa10ef687521467996f77d35e8ba600cd2dacd41e3fc870c69a8c",
-      "git_blob_sha1": "bce9f5364750466ed5650a3c40b520b9ab918273"
+      "bytes": 3809,
+      "sha256": "80d6ddbca95554d039e040f87a02b3671e9db64ce8c5bba12e8a70c8388bbbfb",
+      "git_blob_sha1": "d868e67770257f6db49c85c546e50bf788945a0a"
+    },
+    {
+      "path": "docs/11-05/07-project-status/README.md",
+      "bytes": 6312,
+      "sha256": "5b843a62babfd548117cd15bade352f7b68db9999cb42b09122e813b56e901ae",
+      "git_blob_sha1": "56057b9c8e25dcb9e6e2a4e4ebe9572c2c393dea"
+    },
+    {
+      "path": "docs/11-05/09-fedoptima-reference/README.md",
+      "bytes": 2697,
+      "sha256": "60005303063fbae1eb34e254d60b3020c7bff0b210e6b36add3b726ad6ca4c76",
+      "git_blob_sha1": "8e97717ec1db4062c110d4c743bb2e50d69b337e"
     },
     {
       "path": "environment/apt-runtime.lock",
@@ -97,27 +115,147 @@
     },
     {
       "path": "environment/reference.json",
-      "bytes": 1455,
-      "sha256": "7eb1d12ed676a55160a8a241d8bd85fb6e48a6c386726368feddfc366219b60b",
-      "git_blob_sha1": "f0f2300cb18784b04c18c613d302b2ac883b871c"
+      "bytes": 2242,
+      "sha256": "0f6d22f793bc58cf182265397aba95b6fc19d737e92ee5df1bce9f5e1594ca9e",
+      "git_blob_sha1": "8a350adee596b3a7bd9ba736a12cc4b72d52e890"
     },
     {
       "path": "environment/validation.json",
-      "bytes": 9694,
-      "sha256": "36fdb0189632302bc3ae63354c76496e6c77f40482b61078202343d89c0941de",
-      "git_blob_sha1": "063830132c0ac6154bc816b4680825b3cb026d60"
+      "bytes": 10773,
+      "sha256": "dd739685f66e8d34ac482d1638e9555af79b09d76a653b6eb2ed81b3d184d638",
+      "git_blob_sha1": "995d1d2f784184002dfbf9c1cbcc114029789f3b"
+    },
+    {
+      "path": "reports/20261105_research_summary/README.md",
+      "bytes": 209,
+      "sha256": "a62c6aa419263a9a58696ba18422efe1d164872d6c844f0d8fda484353b5914e",
+      "git_blob_sha1": "6d9cc466969ddc4fabc309101032abdf94d22c39"
+    },
+    {
+      "path": "reports/20261105_research_summary/accuracy_by_elapsed.png",
+      "bytes": 331294,
+      "sha256": "35714d5541d7ac39c490900ffc020cc5670ce9bf3274b3b2ea79fdf876ffbfb2",
+      "git_blob_sha1": "dd84b98f93c2af9b09b52bad012c4a6da2baee86"
+    },
+    {
+      "path": "reports/20261105_research_summary/accuracy_by_round.png",
+      "bytes": 399928,
+      "sha256": "cd46cf09db87d4b13fb1da5cb93bd381e4eb099c41bec8160d00bb6f382ac9b7",
+      "git_blob_sha1": "a9ced7c722f85230acd9be969136c23d0912719a"
+    },
+    {
+      "path": "reports/20261105_research_summary/accuracy_by_round_raw.png",
+      "bytes": 362310,
+      "sha256": "b0dc884bd700d0d5b31093c5cef1afd6c8ab038e506d4f64b51d6458e0e80a4d",
+      "git_blob_sha1": "2964b99b6932f267ba7847e0858d182fb72eb18c"
+    },
+    {
+      "path": "reports/20261105_research_summary/aux_gradient_count.csv",
+      "bytes": 409,
+      "sha256": "62408a33d7f075a0f8f2780962bf73c78c8f2b76b2cefe77665823aab7ae0305",
+      "git_blob_sha1": "9bb855460ed31c7986b61ecb4cb4e1e8703ecebe"
+    },
+    {
+      "path": "reports/20261105_research_summary/bn_decision.json",
+      "bytes": 1102,
+      "sha256": "375374f09b9046fff1da38dd8c39140f781aa3cf2acf69407a7ed755870094be",
+      "git_blob_sha1": "38b4ea661d0b4c7b0c5609be5df2eac256331bfc"
+    },
+    {
+      "path": "reports/20261105_research_summary/bn_loss.csv",
+      "bytes": 172,
+      "sha256": "3c4c109f65dd40a9c0ed30528c5115039b5efd786790c607a5f840f7ee9a2e1c",
+      "git_blob_sha1": "ab80444eceb17657eba425eb011e389c58d62319"
+    },
+    {
+      "path": "reports/20261105_research_summary/c_smoke_audit.json",
+      "bytes": 582,
+      "sha256": "810d8f1fda3620b42c90aea4acefba4f8faa66a9d88160db287e9a7426adb3f7",
+      "git_blob_sha1": "a1f5878fbb7526e52f9652271c058b12ed363b45"
+    },
+    {
+      "path": "reports/20261105_research_summary/comparison.csv",
+      "bytes": 4103,
+      "sha256": "69e47d96b6ccefc0eca00baec78d6c309b78a76f80e6b69a69e8dcef2818230d",
+      "git_blob_sha1": "bbb51561dd6e58389434b20a6da3c02674efc856"
+    },
+    {
+      "path": "reports/20261105_research_summary/fedoptima_matched.json",
+      "bytes": 1542,
+      "sha256": "094511cbc82bf1f454c083ab4b3a82d8e68f3dca7996479ac08a8f8b9f1da731",
+      "git_blob_sha1": "18c5fddf26ee36344f27b3d7063c6522c7180da5"
+    },
+    {
+      "path": "reports/20261105_research_summary/provenance.json",
+      "bytes": 6123,
+      "sha256": "3affeed53911f03f73988f32d994039bd2ec590e4a8c04a136f9749e1a02f377",
+      "git_blob_sha1": "cb10978af3977810b93481c8e4ceafaf7c50abee"
+    },
+    {
+      "path": "reports/20261105_research_summary/round_curves.csv",
+      "bytes": 53227,
+      "sha256": "f7168caffb4836729eba1740fbdc021fddea4391a3c193c1da01589f5259531a",
+      "git_blob_sha1": "465bb61b51e0888193700600ea6921b69c4e2c68"
+    },
+    {
+      "path": "reports/20261105_research_summary/sd_only_accuracy_by_elapsed.png",
+      "bytes": 139161,
+      "sha256": "4f3fe8590ec22edb5580363f480844d69044bcf7cef76ff6dd819b30eb0ac248",
+      "git_blob_sha1": "0498be61aadcefeaca9df957ac4d5d4059a1f080"
+    },
+    {
+      "path": "reports/20261105_research_summary/sd_only_accuracy_by_round.png",
+      "bytes": 134641,
+      "sha256": "d4942484a2300e9404635247b2fb069537fd592846439fa5f677b834bd4cc413",
+      "git_blob_sha1": "bcefdfa2b734d13c0007673767a50eac9d9b1c0b"
+    },
+    {
+      "path": "reports/20261105_research_summary/sd_only_comparison.csv",
+      "bytes": 736,
+      "sha256": "9fee3c6f87ba052b5d6736b646a6a4c2aab52214896d6ecc2b902d5b8896cb49",
+      "git_blob_sha1": "3ade2a21e99a7d3d1b73b4f819870c77db00cee6"
+    },
+    {
+      "path": "reports/20261105_research_summary/sd_only_comparison.json",
+      "bytes": 1402,
+      "sha256": "c3555c60c26ef87d84754c77d420c7a0327f63f8cebae6b9c6b72eadeb447dd9",
+      "git_blob_sha1": "d7c8f79eb599f04fe7ba4422832343a156db229c"
+    },
+    {
+      "path": "reports/20261105_research_summary/sd_only_round_curve.csv",
+      "bytes": 2842,
+      "sha256": "62db456c220375f6897a3d69df94604f6732014cbb90457d6d77e8ada710c91c",
+      "git_blob_sha1": "3c439bab9f94f7781d5575cfe25bc8d70ffcd556"
+    },
+    {
+      "path": "reports/20261105_research_summary/status_snapshot.json",
+      "bytes": 391,
+      "sha256": "82d89c5f29a84628ae28d8c25a70a740aaac0a5a1672b9b0ab437042a8378039",
+      "git_blob_sha1": "6aafe67bb1584b8e43a6fa34dd283b85e5a4cd1d"
+    },
+    {
+      "path": "reports/20261105_research_summary/v5_idle.json",
+      "bytes": 9938,
+      "sha256": "ff467ea0f72ef3add138ab4767f3353fff1b1e002fdc35d624cf15fb907bc18e",
+      "git_blob_sha1": "e393c971605b03d0a536f5d009a49332d6755072"
+    },
+    {
+      "path": "reports/20261105_research_summary/v5_vs_v3_dual_bn.png",
+      "bytes": 224226,
+      "sha256": "6e4dfc526dd357c4ac87eb9b8aacc371b383cf94f5847a663d5db52ffd974ca4",
+      "git_blob_sha1": "4b8d3c64e689b32b85f48775df2c7e1bc63d237b"
     },
     {
       "path": "requirements.txt",
-      "bytes": 1051,
-      "sha256": "f69d63c47776ff63d531c46350cb3fad317b7f423c542fec731079eb165d28ad",
-      "git_blob_sha1": "b4ffdff49cf1a552e777fea0a5327e83326286d4"
+      "bytes": 1268,
+      "sha256": "bbc29180d3dc39c8fe100b28b33d098ed4cdb5426df9d32705970d6103846a78",
+      "git_blob_sha1": "b8ce65ad7a396d30377ac0363c7d4d28462eded7"
     },
     {
       "path": "src/README.md",
-      "bytes": 1885,
-      "sha256": "e4fbc43536d462f4254819706dc7818a93cec8816b9421b3766471acc5f304b0",
-      "git_blob_sha1": "e4d7b54d9b3f26cef6c8378565003c03be8303c7"
+      "bytes": 1982,
+      "sha256": "8f5f10492e8c21baccf4aede0d9b96e52dcfeb669f18a476590783688bd8791d",
+      "git_blob_sha1": "a4ca9b0508da3c7847c378152553302389c0383b"
     },
     {
       "path": "src/checks/check_environment.py",
@@ -136,6 +274,24 @@
       "bytes": 528,
       "sha256": "017d5bae8c5951334ab47b7577345996b8e7d6d8365738ee47db283f9f82a687",
       "git_blob_sha1": "ca9f7a9b92e9ce91d46aab883b646fd548f59f4a"
+    },
+    {
+      "path": "src/configs/na_sfl_pipeline_c.yaml",
+      "bytes": 1118,
+      "sha256": "a7dd4d9722cfce0f93463a06636dcdc2d3ab0c53bac601846e771fc30bbf6bbc",
+      "git_blob_sha1": "7bcaa9cd793a452060d3825f620a30ecc9d8f2ee"
+    },
+    {
+      "path": "src/configs/na_sfl_proto_random_sd.yaml",
+      "bytes": 837,
+      "sha256": "8008adecd6a1c271a4ce3577eb4376fcfb60110d406b6355c9874f34627be45b",
+      "git_blob_sha1": "83352ddfbe0af73ba77c1ccf6f9893394ee02361"
+    },
+    {
+      "path": "src/configs/na_sfl_random_sd_only.yaml",
+      "bytes": 627,
+      "sha256": "412845bc51df598cad19dbfc66f4f16802cce2c31ea570c3b6fb153100b6bbd2",
+      "git_blob_sha1": "71493dacae005be8c40053f0197ea64696b30504"
     },
     {
       "path": "src/configs/na_sfl_v1.yaml",
@@ -198,10 +354,358 @@
       "git_blob_sha1": "6534e797ccb55bbaf0d3328ee1b014cd1ca8f112"
     },
     {
+      "path": "src/reference_external/FedOptima/LICENSE",
+      "bytes": 1064,
+      "sha256": "1179de4320a32050143e3dc0b082476798296d0b1ec3ffe06a2e2cc5ea108b57",
+      "git_blob_sha1": "e52e4f7cc26e371866b0483c8b06226f6ad09024"
+    },
+    {
+      "path": "src/reference_external/FedOptima/README.md",
+      "bytes": 6830,
+      "sha256": "c35604217056b4ee4e140b9f4e16b25551299ea277aa57299bc1c749cfcbd020",
+      "git_blob_sha1": "d5578806fa1d29f6163fc17f61c12b276122ee4b"
+    },
+    {
+      "path": "src/reference_external/FedOptima/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "src/reference_external/FedOptima/communication/bandwidth_limiter.py",
+      "bytes": 1737,
+      "sha256": "a0991588ec91b3af04870909949905bad06765650005e27d5054fece3c603461",
+      "git_blob_sha1": "2c1ff0443b721b0d2ab7adfb2e650a45a7cc1c77"
+    },
+    {
+      "path": "src/reference_external/FedOptima/communication/message.py",
+      "bytes": 4070,
+      "sha256": "3e7415b17b196d76ab9c2e3b5cb4d29b8810dc1000936c6a9a92c006ee0bf32d",
+      "git_blob_sha1": "135e443b87abedfe8d24689095d6ae86822ee489"
+    },
+    {
+      "path": "src/reference_external/FedOptima/communication/one_to_many_communicator.py",
+      "bytes": 2397,
+      "sha256": "ee0695c715ec934f4e6930f6d5e7ed4d77b493c70bf5ee82840a92fc8b829828",
+      "git_blob_sha1": "8fc6d5fb1c8ca5faf7d7b6490ae2952739dde07d"
+    },
+    {
+      "path": "src/reference_external/FedOptima/communication/one_to_one_communicator.py",
+      "bytes": 5525,
+      "sha256": "f1fe2edf40a18d425d58564c47d15a90ef25f554ad6a16ed5d1703786d76679a",
+      "git_blob_sha1": "fc9ec5b222be1db7ab7af200f68d4bf85224c869"
+    },
+    {
+      "path": "src/reference_external/FedOptima/communication/task_scheduler.py",
+      "bytes": 15045,
+      "sha256": "0159ef91b5cbb32abad1ef367890d2d0ecae7c9cedd7abe71a3df670db0f0d93",
+      "git_blob_sha1": "d3a38b330f2830becad447d2e0ae20a4b70ca3fc"
+    },
+    {
+      "path": "src/reference_external/FedOptima/config.json",
+      "bytes": 354,
+      "sha256": "01bd5cf3e1cf71c22a17f04a6d682e54a710cba41ad6b1192d413000abd60271",
+      "git_blob_sha1": "2b184a45e8af6e62f6a9b8e87302777c3f80163d"
+    },
+    {
+      "path": "src/reference_external/FedOptima/config.py",
+      "bytes": 15025,
+      "sha256": "2cd27e30678907b584d75c8334c3a89cf2193e3c54ecd968912b929bea3c3ead",
+      "git_blob_sha1": "13c00beabc13f50f9b4c9093dafb2ef6380e0a70"
+    },
+    {
+      "path": "src/reference_external/FedOptima/data_preprocessing/data_reader.py",
+      "bytes": 16454,
+      "sha256": "27b92c261528ddb048530720cb9dc351d5e5380a0af5d4118c987834f06289bd",
+      "git_blob_sha1": "33eca0b03a41c29f13207374d4a79a05e5b779b9"
+    },
+    {
+      "path": "src/reference_external/FedOptima/data_preprocessing/datasets.py",
+      "bytes": 1491,
+      "sha256": "c2c7d9fe985d4bbdcbb94771fa68298fb37eaa9aff78fd87756182ce17be1635",
+      "git_blob_sha1": "5bdd0e0bf50cef2749bc415051687fc7478dc452"
+    },
+    {
+      "path": "src/reference_external/FedOptima/data_preprocessing/nlp_tools.py",
+      "bytes": 2910,
+      "sha256": "d26c849db5e1d8c0d8f91c9ef3d6027b09ab98c6c7ab4e9f8af5710f3f477a7c",
+      "git_blob_sha1": "3b95fb039eafad24ac94afd0c0be57d806ea1aa9"
+    },
+    {
+      "path": "src/reference_external/FedOptima/figs/overview.jpg",
+      "bytes": 41590,
+      "sha256": "90a24f216e587dc4aeca42b41c4db4c79669ca243845fb3f0560254e8f64f97c",
+      "git_blob_sha1": "eda97329d133b7454d7510a9c87adec6d5aa8684"
+    },
+    {
+      "path": "src/reference_external/FedOptima/hsfl/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "src/reference_external/FedOptima/hsfl/control.py",
+      "bytes": 8278,
+      "sha256": "5f7a9ac261a68298b569a725d27c125d491195c7292658f2d554dc4cbbe42059",
+      "git_blob_sha1": "226c65dc22122a653abb5e107ffa70adc9372b7c"
+    },
+    {
+      "path": "src/reference_external/FedOptima/hsfl/model_data.py",
+      "bytes": 8669,
+      "sha256": "d8a7219928b6c64fc689985c2451c06fe6df590180565242439dda9b46d4d43f",
+      "git_blob_sha1": "f2cd527db3f16d538a72a2f42f9a122f27686201"
+    },
+    {
+      "path": "src/reference_external/FedOptima/hsfl/network.py",
+      "bytes": 6062,
+      "sha256": "a5f3f116a6d124bbf0c27728b971d29b6d8d8619597121876b9de0530d7cc9c9",
+      "git_blob_sha1": "25ec1e42b39921ffe1ea0cafbe75d2a7fed23dc7"
+    },
+    {
+      "path": "src/reference_external/FedOptima/hsfl/protocol.py",
+      "bytes": 11602,
+      "sha256": "3556fc4f10d150b8c9118e845f8f3238142669f6478683e2cad082097e14d5b6",
+      "git_blob_sha1": "7afc4176670c0a1dc48f694ea99fafa86cb06214"
+    },
+    {
+      "path": "src/reference_external/FedOptima/hsfl/runtime.py",
+      "bytes": 30096,
+      "sha256": "d65e5ed058d060f3bd6281744c5fee14f3c574dca5ce6bd28335be62d201d81b",
+      "git_blob_sha1": "0161530dc4d2522113162110e6568eee9b18282d"
+    },
+    {
+      "path": "src/reference_external/FedOptima/networks/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "src/reference_external/FedOptima/networks/cnn.py",
+      "bytes": 1105,
+      "sha256": "f9af251530cfaabe8160b9252a0b3aca72570a9dfc50a9bce116f50e577285cd",
+      "git_blob_sha1": "b7f5d0d59c5826737301578b2f2495d6b676880f"
+    },
+    {
+      "path": "src/reference_external/FedOptima/networks/deeplab.py",
+      "bytes": 229,
+      "sha256": "a4d3f6ebdc83b93eed5850c3014070da587c74f0d5c48ca4906151f1cc91b94c",
+      "git_blob_sha1": "1516db17f75368f0d6eb286b058a31b958e6fdab"
+    },
+    {
+      "path": "src/reference_external/FedOptima/networks/fcn.py",
+      "bytes": 776,
+      "sha256": "5b9457028053da1f74b4c60d4fe6cfbbd9428ea7559678fe188d5f19d44bac05",
+      "git_blob_sha1": "af8dd5b2897055768dc0b57702dc65a77727aaf1"
+    },
+    {
+      "path": "src/reference_external/FedOptima/networks/layers.py",
+      "bytes": 13535,
+      "sha256": "03c3682499c2609d65ad879c96b64844d99c6018569f633bf7d13cb208c24e88",
+      "git_blob_sha1": "5e07b2cdabd76279fa3665832a410969b5fef26d"
+    },
+    {
+      "path": "src/reference_external/FedOptima/networks/mobilenet.py",
+      "bytes": 762,
+      "sha256": "b2ced60d14e192160291830fe702b718fd61cfd155b9c83288f79a6ae01ea6d7",
+      "git_blob_sha1": "82d05e3fb117ac7a4291f5687c37ae75ffe60de3"
+    },
+    {
+      "path": "src/reference_external/FedOptima/networks/model_config.py",
+      "bytes": 84308,
+      "sha256": "fdf9beb428e9700db2a820b60fd7522702ab65e52f20ea39593920f532e8c789",
+      "git_blob_sha1": "2b6f99b32bea9587761459dced48fd7dd04799b2"
+    },
+    {
+      "path": "src/reference_external/FedOptima/networks/network.py",
+      "bytes": 2406,
+      "sha256": "d100dcfe28459fe48d092343fab4044ff93c4ecfbb95e946376c7d523e4c1415",
+      "git_blob_sha1": "d83baa3eca117d7752368d4dc091e996cb2f6c22"
+    },
+    {
+      "path": "src/reference_external/FedOptima/networks/resnet.py",
+      "bytes": 535,
+      "sha256": "5440f9b88a4b2ae8d2e9884c7e548930d014d5ebc3bc8c5fab657449a5d6f746",
+      "git_blob_sha1": "6f258c13cfb696b8af6b2518868d7c107c1f9da8"
+    },
+    {
+      "path": "src/reference_external/FedOptima/networks/transformer.py",
+      "bytes": 1324,
+      "sha256": "f13c1873353827b8c22a56a4febfc9dd3c829be46c8d0877aa9b33844fd939cb",
+      "git_blob_sha1": "6697d16040ad18f521696850d6697b52146fcde2"
+    },
+    {
+      "path": "src/reference_external/FedOptima/networks/vgg.py",
+      "bytes": 724,
+      "sha256": "bf7c08f75bab48061fb2f16c10db068506e274897940b0cbbd308e9ce7e6e763",
+      "git_blob_sha1": "dffd68c6c6a3456a1192f7cc6b78365c698ec211"
+    },
+    {
+      "path": "src/reference_external/FedOptima/node/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "src/reference_external/FedOptima/node/async_client.py",
+      "bytes": 23601,
+      "sha256": "dd5e7c84e6f8dee4477a9be1862f31617afefcc8466b59867368adf409ad48cc",
+      "git_blob_sha1": "1141452aa7e1e614ad56acc5bb7129b0eee17630"
+    },
+    {
+      "path": "src/reference_external/FedOptima/node/async_server.py",
+      "bytes": 12392,
+      "sha256": "640815af206d6f32c6bbaf2b98f5069c81c7c81f8a64472d1903d04874b5f174",
+      "git_blob_sha1": "6975bbd4612702fd75340b3f6ca6cbbc73ecafb8"
+    },
+    {
+      "path": "src/reference_external/FedOptima/node/async_server_model.py",
+      "bytes": 29001,
+      "sha256": "48a03e11221106be5524566bd72f739b6ab13cc6a4743dc9ff5697fa732403e1",
+      "git_blob_sha1": "3990673ca61987b45d9623a666b424dfab522fae"
+    },
+    {
+      "path": "src/reference_external/FedOptima/node/client.py",
+      "bytes": 21404,
+      "sha256": "f75002df37e27fbcff47ed57a11c54dac5f9f916c5bd47ae116828b4f788cb93",
+      "git_blob_sha1": "d026a1f617c57ba7a44bd8ada12216f5d638fda3"
+    },
+    {
+      "path": "src/reference_external/FedOptima/node/node.py",
+      "bytes": 693,
+      "sha256": "fbc2d5bc4ea6bf9e6d0f77481e05f52fb3db977b78ccf8572f1309916cdda531",
+      "git_blob_sha1": "2da364f57da8c4920a9d91fb0820263594b67adf"
+    },
+    {
+      "path": "src/reference_external/FedOptima/node/run_client.py",
+      "bytes": 6826,
+      "sha256": "18aae8d8fc58571b46847374add0a263d8a0a4e8ab9225ca0b4f03876a037339",
+      "git_blob_sha1": "74468a221dc70db9b346259097e45d75b3466170"
+    },
+    {
+      "path": "src/reference_external/FedOptima/node/run_server.py",
+      "bytes": 3147,
+      "sha256": "2b67b1c2cbd68dddc8f4240d8f25d62a61e0de42e7e127d282435a2d211377ae",
+      "git_blob_sha1": "af8698fcd98c56030a619643ffd2ba2f0aab5bdc"
+    },
+    {
+      "path": "src/reference_external/FedOptima/node/server.py",
+      "bytes": 19407,
+      "sha256": "174e08ff4b225849acf4cedbeb7b39ef94e78a4d144c4fa39548dde5617ed481",
+      "git_blob_sha1": "8393e4f1b1d5e88b1779886f49316628756b304c"
+    },
+    {
+      "path": "src/reference_external/FedOptima/node/server_model.py",
+      "bytes": 28996,
+      "sha256": "7a01e702fafb7acf9d1ccd5f5619320d5f7a08e95a98fa3c7a2feb3f97be56f1",
+      "git_blob_sha1": "e88df153a958988f67d372b72feccaad7366775d"
+    },
+    {
+      "path": "src/reference_external/FedOptima/node/simulated_client.py",
+      "bytes": 15218,
+      "sha256": "8875c3cdfb0747e29a0637a1df6c138cc60fc1a434799a0c9455264512e20c99",
+      "git_blob_sha1": "d9e58b3abba1e0eec7d185331732fdb16aa49f3e"
+    },
+    {
+      "path": "src/reference_external/FedOptima/node/simulated_server_model.py",
+      "bytes": 15244,
+      "sha256": "0961f2fa57a8299e8f1d011ef04b4bb83bd5621891e48571a955444be8cb9910",
+      "git_blob_sha1": "394f8647490155985a4af8a510da9c22a0a897fb"
+    },
+    {
+      "path": "src/reference_external/FedOptima/requirements.txt",
+      "bytes": 1189,
+      "sha256": "6c552fbbad3ccb45cfc7c7d1a31f1e7b973f0558d3457f20bb8dca292545074f",
+      "git_blob_sha1": "9d70db3a001b36385c6eba3234340c95dd5ad0a4"
+    },
+    {
+      "path": "src/reference_external/FedOptima/run.py",
+      "bytes": 1878,
+      "sha256": "59a9265ab522045b4e74c477f7e93ca0378c767a669eba4a0a134f0bec91084d",
+      "git_blob_sha1": "33fc44f7039c38a9ac7894107b10c2af2001d124"
+    },
+    {
+      "path": "src/reference_external/FedOptima/util/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "src/reference_external/FedOptima/util/aggregator.py",
+      "bytes": 1928,
+      "sha256": "062deadd776137de2c9aeff00ed95797ed0dad50d6eacc541b106ba66a17e4aa",
+      "git_blob_sha1": "e2c990db9408244d15395fa02bbd5721da84005c"
+    },
+    {
+      "path": "src/reference_external/FedOptima/util/async_aggregator.py",
+      "bytes": 1215,
+      "sha256": "22b65a563948260c24a952e957887dcdbc9cdfa6870fefc31d38ed67c35a28f7",
+      "git_blob_sha1": "079bee3a070fe90995a09bd9e81b2cab384067f4"
+    },
+    {
+      "path": "src/reference_external/FedOptima/util/layer_profiler.py",
+      "bytes": 6729,
+      "sha256": "ab3be071d61ccb99eb0c0680690cc080168fc3ccd1257aa4615ed84fade4fd88",
+      "git_blob_sha1": "4e47fa9096ef46872d97631d38dc010dd38b9e87"
+    },
+    {
+      "path": "src/reference_external/FedOptima/util/profile.py",
+      "bytes": 9519,
+      "sha256": "68b96ead1a77517c0246425fecbe8e0c0f517d8e09049b85255f722840981a2f",
+      "git_blob_sha1": "17196ac9dcc1de497c7042f32916e2ce552f4e4a"
+    },
+    {
+      "path": "src/reference_external/FedOptima/util/timing.py",
+      "bytes": 2266,
+      "sha256": "a02679220003eff553b0949964eeb150a1d6f37eced983c6a2a5ff6a2c79f956",
+      "git_blob_sha1": "a4443146739971c46b039505c55f77317d578a1d"
+    },
+    {
+      "path": "src/reference_external/FedOptima/util/util.py",
+      "bytes": 15069,
+      "sha256": "3db3fcd2c03d6aff06fccc8ba83be0cdfbf97050d725a2f199b86d41ec3504b9",
+      "git_blob_sha1": "d4d51197fca24b71db469b0bb88816c9900e0945"
+    },
+    {
       "path": "src/run_exp_main.py",
       "bytes": 349,
       "sha256": "3bc781517ddd9dafc6a2837cf0094bbc74ab705d079ce534351b7b1da40590e9",
       "git_blob_sha1": "32ed38efc2366b8549c6476df11e62a48af4fc50"
+    },
+    {
+      "path": "src/tests/test_fedoptima_control_cpu.py",
+      "bytes": 9453,
+      "sha256": "74a0d9b06194bfb1272834feee5cb31ff050fbdc655b0fc774004d0b037caab6",
+      "git_blob_sha1": "013adedb87681aa88b3a70d7133708bd437cd360"
+    },
+    {
+      "path": "src/tests/test_fedoptima_model_data_cpu.py",
+      "bytes": 7972,
+      "sha256": "edcdf7246c255e7de6eb30744eb11211a7acd060d1bca51d654ca2a63feb1913",
+      "git_blob_sha1": "547f996f3dc5dc271aabc4f1211f1e561f7e3e0d"
+    },
+    {
+      "path": "src/tests/test_fedoptima_network_cpu.py",
+      "bytes": 11624,
+      "sha256": "cde0677b2d8a14ea97105f654e58dc9baf33d80a0da9cd524d20abd37e13d000",
+      "git_blob_sha1": "b38b2d96a358891656a1103f11847142b7828380"
+    },
+    {
+      "path": "src/tests/test_fedoptima_protocol_cpu.py",
+      "bytes": 8146,
+      "sha256": "22f467f932fff5dd371cf629383d1d5f5e5bb86f1fc7032ef39f2e4c7d3306d6",
+      "git_blob_sha1": "49562d8112bc3af5531a9ce8ddc8221656c099e9"
+    },
+    {
+      "path": "src/tests/test_na_sfl_bn_cpu.py",
+      "bytes": 9910,
+      "sha256": "6381f89777f5593305620e5c3c16f48940103f99fecb1cb3170e07fd1e1d3dea",
+      "git_blob_sha1": "4ba7ec7eb315c95133abf951cb84e9010dc5a872"
+    },
+    {
+      "path": "src/tests/test_na_sfl_bn_experiments_cpu.py",
+      "bytes": 5466,
+      "sha256": "fedd08d76b4dc37a746d1375c6e6acd921523bfd90ac7eff83eb1d91ffe70282",
+      "git_blob_sha1": "9c0227c8a904b8a655bf2ea26ffefbae02554533"
     },
     {
       "path": "src/tests/test_na_sfl_cpu.py",
@@ -210,10 +714,70 @@
       "git_blob_sha1": "e0a42dc179b8a23526e1a2e6f640c10457ee73cb"
     },
     {
+      "path": "src/tests/test_na_sfl_hybrid_artifacts_cpu.py",
+      "bytes": 5984,
+      "sha256": "a0dbe8b9503b4f1c903eb28d59e4357566f4ea4c165b055cf5c6dda952a51ac3",
+      "git_blob_sha1": "7975f87ea87a2e5efcf38c4a98c3fe839757da2e"
+    },
+    {
+      "path": "src/tests/test_na_sfl_hybrid_client_cpu.py",
+      "bytes": 5697,
+      "sha256": "d107076f62cae05adb52de5c43118861f27329c18cb44602c35669b9c1fce7c0",
+      "git_blob_sha1": "cce1da1ee23f432d23641ef3090b105b24e722cf"
+    },
+    {
+      "path": "src/tests/test_na_sfl_hybrid_server_cpu.py",
+      "bytes": 7644,
+      "sha256": "3633baa7e801155a1a64e0d87c0398e1dc064ea8d653c736a5c5325f5b55d905",
+      "git_blob_sha1": "569a49107908a0e007d98e1c58b18b1e9e126a97"
+    },
+    {
+      "path": "src/tests/test_na_sfl_hybrid_transport_cpu.py",
+      "bytes": 11798,
+      "sha256": "b34367cff3ac5924409e3cc9b99e791389523c26d33a7adce27ddb21dcae5796",
+      "git_blob_sha1": "027de630e3c1d087cb24f17b1fd614e270621b4a"
+    },
+    {
       "path": "src/tests/test_na_sfl_network_cpu.py",
       "bytes": 14948,
       "sha256": "b17419ffcd6af8f28da36fcde0cbd7043836f2ba2764c96bef65caa3b971431f",
       "git_blob_sha1": "5ad02498021a03d1e79fe5ea982b706f57c2fc03"
+    },
+    {
+      "path": "src/tests/test_na_sfl_pipeline_artifacts_cpu.py",
+      "bytes": 13585,
+      "sha256": "0246dcad82570e3a91f2c1b952d2f3a51165164067c8086c3e0656c15d5a3dfe",
+      "git_blob_sha1": "bfe5c0cb133e42baa579a36a27ecd384abe9c1fe"
+    },
+    {
+      "path": "src/tests/test_na_sfl_pipeline_client_cpu.py",
+      "bytes": 14947,
+      "sha256": "02c1c93c578c42ba7bf614ecd726de538c7380ef9f0b668b48bc9e573d49b6e0",
+      "git_blob_sha1": "daa1595dcab135b578ae6273b49866c74d5e4879"
+    },
+    {
+      "path": "src/tests/test_na_sfl_pipeline_engine_cpu.py",
+      "bytes": 10279,
+      "sha256": "4cb1f255c8f25df50165ded7908c03ef9c3a8d6c3439e1a3ff26ccdeff3c389d",
+      "git_blob_sha1": "f0f9552a299561e31bc986087078a95346c47959"
+    },
+    {
+      "path": "src/tests/test_na_sfl_pipeline_experiment_cpu.py",
+      "bytes": 20114,
+      "sha256": "ce1230c4b303e7259692402e8693d4456530b2a21e4644d9bfb474c4d8588a2f",
+      "git_blob_sha1": "15ec938257849555734e0aec27294c931e109add"
+    },
+    {
+      "path": "src/tests/test_na_sfl_pipeline_integration_cpu.py",
+      "bytes": 6748,
+      "sha256": "71d11bdc15be8ceff0509eae4fb145564044e4b775b09889ad6df49f2051b385",
+      "git_blob_sha1": "5da0172b07ca26bb49f7e1464dd818a98664a039"
+    },
+    {
+      "path": "src/tests/test_na_sfl_pipeline_transport_cpu.py",
+      "bytes": 9517,
+      "sha256": "7654ecdec0efd6d851f5fabdc98a746c5e2427aa549b5f41089990f787eda6da",
+      "git_blob_sha1": "a5f20407cedfc8c4d91838520a53761498093bb7"
     },
     {
       "path": "src/tests/test_na_sfl_proto_artifacts_cpu.py",
@@ -250,6 +814,12 @@
       "bytes": 12796,
       "sha256": "cda04cfce559327a825ff47b1b0df580942d4d48672e9c00a95bbb0fd7c07615",
       "git_blob_sha1": "aa8867969f9d24122d14349f431e87aad608d9b1"
+    },
+    {
+      "path": "src/tests/test_na_sfl_sd_only_cpu.py",
+      "bytes": 7898,
+      "sha256": "5222a5205c448fb133ba4373a28565d04ec41e8b8472027517a1be750100b688",
+      "git_blob_sha1": "810de4be597af72c8d67c363e6b86b49bb2faca6"
     },
     {
       "path": "src/tests/test_na_sfl_transport_cpu.py",
@@ -289,9 +859,9 @@
     },
     {
       "path": "src/utils/deit_async.py",
-      "bytes": 25752,
-      "sha256": "abdd53a80226576ac77b38c05f0dc324c4ad8b60224b2360c7fc7b141df2c20e",
-      "git_blob_sha1": "13ee321e07bf238ea7175b9b3115e25f8371d089"
+      "bytes": 42254,
+      "sha256": "173797f9b9d078f230dc300865f6eb155a8a615e377aa58c27527f69399fb2a3",
+      "git_blob_sha1": "14010482bd2d62f21c8957e40b9614046f957763"
     },
     {
       "path": "src/utils/logger.py",
@@ -313,27 +883,69 @@
     },
     {
       "path": "src/utils/na_sfl_batch.py",
-      "bytes": 3214,
-      "sha256": "7af9c1633bd37c241e7a6bc89206e2a649d73fa3caf0e8cfa31cef6d4415b92b",
-      "git_blob_sha1": "c12bf6699cd1667bc8d0a57936e4f5eec1e07045"
+      "bytes": 3280,
+      "sha256": "76d1cc50c94b331b711ccd03b5d5a1178e8cf37bd94abc933f80a6a4856a601a",
+      "git_blob_sha1": "51014251ac97b62c94fb88e1764b723d805823da"
+    },
+    {
+      "path": "src/utils/na_sfl_bn.py",
+      "bytes": 9662,
+      "sha256": "550320d0877c8a4a824d35046f9d1212e5b3473effa6c857073a1e31093bd6c1",
+      "git_blob_sha1": "38c76119c592ffe272e9210cafefe9743efd86e3"
+    },
+    {
+      "path": "src/utils/na_sfl_bn_experiments.py",
+      "bytes": 21182,
+      "sha256": "1324edd48b2d267f1f39806e65a2fe5baf2d2304627cbf395d46b64c8c9cacaa",
+      "git_blob_sha1": "36b2203897163c15be924fe75e51d12634e48241"
     },
     {
       "path": "src/utils/na_sfl_config.py",
-      "bytes": 12218,
-      "sha256": "a2c2020c91d1e6ccde0d4013721a4331809862c31f0172c0a4be5eeee7c8f5eb",
-      "git_blob_sha1": "32d529f618de28103ecfd763908dc8de58ae2340"
+      "bytes": 15789,
+      "sha256": "465b958d93024516e256309e87d4f90b656a8700edaa45f69a2e1bb2fd8558b5",
+      "git_blob_sha1": "bcc1f3ce48b4c26eed33422c292bb8106c6f9864"
+    },
+    {
+      "path": "src/utils/na_sfl_hybrid.py",
+      "bytes": 8159,
+      "sha256": "82e0a9c89bd5a88f69be4bf16a07057d45729297748cce349271647e91eddfeb",
+      "git_blob_sha1": "fb73b191475bdeab3cec301360d08bca15944b64"
+    },
+    {
+      "path": "src/utils/na_sfl_hybrid_experiment.py",
+      "bytes": 21996,
+      "sha256": "570c32dc74c3113a250be4c4c17da500102d7dcbab78552ddb6a5225e702afc5",
+      "git_blob_sha1": "bcf60bc48844737864becffa966f71b58b5bfb9a"
     },
     {
       "path": "src/utils/na_sfl_network.py",
-      "bytes": 21551,
-      "sha256": "3285d40fb4cbc3c94e956f3f0e6b19f44505b6d7c76cd633509ad9a380cd67c5",
-      "git_blob_sha1": "95028725c847de70bc926147b80e68afd096cb52"
+      "bytes": 21889,
+      "sha256": "6ccb22c7b57f0cf06108890979ec4bdbf98c5b49ebf51bb26aea2cbc503aba89",
+      "git_blob_sha1": "001174f914f2cb7bbee798af5ac6311a00e64446"
+    },
+    {
+      "path": "src/utils/na_sfl_pipeline.py",
+      "bytes": 12644,
+      "sha256": "f5a72fabbb2f5d387c4222ab12071dee9505e47fdf46077e9c2a1f68b8dfea1b",
+      "git_blob_sha1": "e502cc4444aca20e91d559a067df0c997d63ceb1"
+    },
+    {
+      "path": "src/utils/na_sfl_pipeline_artifacts.py",
+      "bytes": 23048,
+      "sha256": "f73ce1e5e3be924215aa205034506a8eaae5850c75d33a84715acb1b8f0f6752",
+      "git_blob_sha1": "6a0e6538dfaa9c169a6c1d069eeff7f7e150c7ca"
+    },
+    {
+      "path": "src/utils/na_sfl_pipeline_experiment.py",
+      "bytes": 29930,
+      "sha256": "860761810f55c14386f425266e31b485cd0c943188ce6235e877fdf19c82fc7d",
+      "git_blob_sha1": "d5889f0f5cc57094599d6e509b2177255d6f6b13"
     },
     {
       "path": "src/utils/na_sfl_proto_artifacts.py",
-      "bytes": 14929,
-      "sha256": "eb08bcec25d2ddc56cd320283bb153c11e92aea414ed83153dace3cf64eeaa11",
-      "git_blob_sha1": "db3fcc0ef91f082ce037631a0d2361561bdbae98"
+      "bytes": 15800,
+      "sha256": "94433fd5f6fe592939321948b79ca73c4311ef6fceeee6e879ebe1928389f861",
+      "git_blob_sha1": "a2aa69f156347262d039262c07dfdcd6cbc0e987"
     },
     {
       "path": "src/utils/na_sfl_proto_client.py",
@@ -343,15 +955,15 @@
     },
     {
       "path": "src/utils/na_sfl_proto_protocol.py",
-      "bytes": 4318,
-      "sha256": "1438e8520a806d97a96ca83b665b502ac776dafa125f8d76365265f3afa90381",
-      "git_blob_sha1": "41ea663faf74d71bcb6cd586775fc4e5dcc86e74"
+      "bytes": 8329,
+      "sha256": "c6e3c3f0df8bc1c3526ade8b67db27cf9a3f11f7ae118beb1e9bb56344cab4e4",
+      "git_blob_sha1": "36761e1a953f739a3a3eeea88616975f82e3dc41"
     },
     {
       "path": "src/utils/na_sfl_prototype.py",
-      "bytes": 20862,
-      "sha256": "e1b698810a9bce659cd0902976e0097215e32ac402a9e7be69367c5a18866daf",
-      "git_blob_sha1": "563169c7ca54f1db412e1397bbda186858658a5a"
+      "bytes": 25201,
+      "sha256": "34047eeca23030dc6db9a9e148644616fa7681081239fd6fefe0842f41834fb9",
+      "git_blob_sha1": "f86d5b37b09bbe4255835b8543506c239ee4a105"
     },
     {
       "path": "src/utils/na_sfl_residual.py",
@@ -361,27 +973,33 @@
     },
     {
       "path": "src/utils/na_sfl_run.py",
-      "bytes": 17494,
-      "sha256": "28a2f5e75eaf26b0fbe906a5144f6da7f11da0a2538dc5b0d6a9de4d4e050afb",
-      "git_blob_sha1": "619d88afd7ea441d17265613bc630beffd47e566"
+      "bytes": 19380,
+      "sha256": "b0450209fd91b1b7798375fa2f88bb49c6ac5527be456d68736a0bab63854ccd",
+      "git_blob_sha1": "02780d50ee8dab1b649a105122585b8aa2c5c816"
+    },
+    {
+      "path": "src/utils/na_sfl_sd_only_experiment.py",
+      "bytes": 17192,
+      "sha256": "1b0f378312f5730453b0155f40cbf018c5902cc64b857fb8933bb3645717a7d1",
+      "git_blob_sha1": "319e8d0d3ea20045ba02d8ef12f037bafb06fa86"
     },
     {
       "path": "src/utils/na_sfl_train.py",
-      "bytes": 28342,
-      "sha256": "3211c4b2a34c770ae7f52e8199789aa40bd68111f3b50f72eb429198b2dbae66",
-      "git_blob_sha1": "161961f26005f66618e352b9b9e50e8cd9227ebd"
+      "bytes": 36709,
+      "sha256": "9524112e6db7b4e9a55e77e49e3ec439c5f0c9ca8e2c9090eba1222be7d553e7",
+      "git_blob_sha1": "61422a13fec9d8d710853e66065b07c63a2f51fb"
     },
     {
       "path": "src/utils/na_sfl_transport.py",
-      "bytes": 29416,
-      "sha256": "ad796b824e0958cbd786d4413033d8bbc93c07926c2734f9dc4f86598d1ff69c",
-      "git_blob_sha1": "84515c40fc27bd81dece530432a05dbbfe069440"
+      "bytes": 34726,
+      "sha256": "c4e34735c39487a13cb0353474272275448de9a0cfdae25ebff0e025212ad665",
+      "git_blob_sha1": "98c12ac8b5a07ed469a9d4808360bc0dcff9b7d0"
     },
     {
       "path": "src/utils/option.py",
-      "bytes": 4782,
-      "sha256": "245bbc9277656d8d8f5bf016475bed1bf22926a0bfbe62b9cc2268b59fc304d2",
-      "git_blob_sha1": "66f07e5ac43f1ffaa78bfa4233f36283a09e5dcb"
+      "bytes": 8328,
+      "sha256": "2125b81062f85dacf7b674a4ec5395959c305a8df9fbd6600df00419cd36dfc7",
+      "git_blob_sha1": "21b0c7316a4751636db226db59e081b7027a501a"
     },
     {
       "path": "src/utils/sflv2.py",
@@ -391,18 +1009,9 @@
     },
     {
       "path": "src/utils/sflv2_metrics.py",
-      "bytes": 2195,
-      "sha256": "8dd40b478f646186f89b0b737667e9b0f4e6e6ae01b3f82f94de0e2b16a1ffec",
-      "git_blob_sha1": "7fe4db05361bdc5ffb9a748af8f3f238f00ed1db"
+      "bytes": 2646,
+      "sha256": "e20c7651f0165be620e4db115a73671b9b002addbb229a29a7e65526d7e35137",
+      "git_blob_sha1": "3897d317a3bf49ad79d4a03d3d0b791d9d7e9869"
     }
-  ],
-  "excluded": [
-    "datasets",
-    "results",
-    "checkpoints",
-    "personal AGENTS.md",
-    "historical research/PDF/archive/logs",
-    "credentials"
-  ],
-  "verification": "CPU193passed in original tree and clean export; environment62checks; pipcheck; CLI; Compose parse; no new Docker build/GPU run"
+  ]
 }

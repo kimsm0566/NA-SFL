@@ -1,13 +1,18 @@
 {
-  "date": "2026-11-02",
-  "scope": "existing container only; CPU/read-only checks",
-  "cpu_tests": {
-    "passed": 193,
+  "date": "2026-11-05",
+  "passed": true,
+  "cpu_without_data": {
+    "passed": 490,
     "warnings": 14,
-    "elapsed_s": 7.18,
-    "command": "CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider tests"
+    "seconds": 22.92
   },
-  "environment_check": {
+  "cpu_with_local_cifar10": {
+    "passed": 505,
+    "warnings": 14,
+    "seconds": 27.13
+  },
+  "environment_checks": 71,
+  "environment": {
     "passed": true,
     "checks": [
       {
@@ -287,6 +292,60 @@
         "expected": "4.15.0"
       },
       {
+        "name": "package:click",
+        "passed": true,
+        "observed": "8.5.0",
+        "expected": "8.5.0"
+      },
+      {
+        "name": "package:cloudpickle",
+        "passed": true,
+        "observed": "3.1.2",
+        "expected": "3.1.2"
+      },
+      {
+        "name": "package:defusedxml",
+        "passed": true,
+        "observed": "0.7.1",
+        "expected": "0.7.1"
+      },
+      {
+        "name": "package:joblib",
+        "passed": true,
+        "observed": "1.6.0",
+        "expected": "1.6.0"
+      },
+      {
+        "name": "package:memory-profiler",
+        "passed": true,
+        "observed": "0.61.0",
+        "expected": "0.61.0"
+      },
+      {
+        "name": "package:nltk",
+        "passed": true,
+        "observed": "3.10.4",
+        "expected": "3.10.4"
+      },
+      {
+        "name": "package:psutil",
+        "passed": true,
+        "observed": "7.2.2",
+        "expected": "7.2.2"
+      },
+      {
+        "name": "package:regex",
+        "passed": true,
+        "observed": "2026.9.29",
+        "expected": "2026.9.29"
+      },
+      {
+        "name": "package:tqdm",
+        "passed": true,
+        "observed": "4.70.1",
+        "expected": "4.70.1"
+      },
+      {
         "name": "torch CUDA build",
         "passed": true,
         "observed": "12.1",
@@ -391,18 +450,9 @@
     ],
     "scope": "read-only dependency/import/data checks; no GPU model, Mininet topology or training"
   },
-  "pip_check": "No broken requirements found.",
-  "cli_help": "passed",
-  "compose_config": "passed",
-  "new_docker_image_build": "not run",
-  "new_container_creation": "not run",
-  "new_gpu_model_execution": "not run",
-  "gpu_regression_suite": "not run",
-  "new_100_round_experiment": "not run",
-  "clean_export_cpu_tests": {
-    "passed": 193,
-    "warnings": 14,
-    "elapsed_s": 7.3,
-    "data_or_past_results_included": false
-  }
+  "pip_check": "No broken requirements found",
+  "cli_help": true,
+  "runtime_source_changes": false,
+  "export_only_test_harness_fix": "test_fedoptima_protocol_cpu.py imports reference root independently",
+  "scope": "Existing container; no new Docker build or new-server GPU validation; no extra training started for publication"
 }

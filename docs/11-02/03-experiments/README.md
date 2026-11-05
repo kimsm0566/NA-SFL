@@ -1,6 +1,6 @@
 # 실행 방법과 실험 설정
 
-작성일: 2026-11-02. 모든 Python 명령은 컨테이너의 `/workspace/HSFL/src`에서 실행한다. 설치와 CIFAR10 준비는 [환경 설정](../02-portable-setup/README.md)을 따른다. 이 문서의 명령을 저장소를 clone했다는 이유만으로 자동 실행하지 않는다.
+갱신일: 2026-11-05. 모든 Python 명령은 컨테이너의 `/workspace/HSFL/src`에서 실행한다. 설치와 CIFAR10 준비는 [환경 설정](../02-portable-setup/README.md)을 따른다. 저장소를 clone했다는 이유만으로 학습을 자동 실행하지 않는다.
 
 ## 공통 학습 조건
 
@@ -15,6 +15,9 @@ CIFAR10 train50000/test10000 중 고정 seed42로 선택한30000장을 Client10�
 | `na_sfl_v2` | v1과 같음 | 전원 학습·FedAvg | 현재 FIFO buffer의 SD를 기다림 없이 최대512samples concat |
 | `na_sfl_v3_proto` | Fast는 grad_SD, Slow0·5는 grad_Prototype | 없음 | individual FCFS |
 | `na_sfl_v4_residual` | v3 + Slow PseudoCE 경로 | 없음 | individual FCFS |
+| `na_sfl_proto_random_sd` (v5) | Fast 전체/Slow Prototype+SD10% | 없음 | individual / DualBN |
+| `na_sfl_random_sd_only` | Prototype 없이 Fast 전체/Slow SD10%, CE1.0 | 없음 | individual |
+| `na_sfl_trainer_sender_pipeline` (C) | v5 그대로 + 2batch 평균 누적 | 없음 | Server Job당1 Step, Client2 Jobs당1 Step |
 
 v1 기본 YAML의 Aux gradient 수는0이며 논문의 모든 condition이 항상2명인 것은 아니다. Mininet 비교 YAML은 k2를 선택한다. v1/v2의 `--aux-client-count k`에서 k는 보조 gradient 사용자 수이며 Aux head 학습 개수가 아니다.
 
@@ -69,6 +72,8 @@ python run_exp_main.py --config configs/na_sfl_v4.yaml --smoke-test --no-residua
 
 ## 결과·checkpoint·재개
 
+실험 묶음은 **`results/YYYYMMDD_설명/`** 형식이다. 날짜는 최초 시작일(Asia/Seoul), 설명은 영문 `snake_case`다. 예: `--result-path results/20261105_na_sfl_v5_run01`. 준비·검증·분석에도 같으며 같은 날의 추가 구분자는 설명 뒤에 붙인다.
+
 각 condition의 `result_path` 아래 고유 run ID 폴더에 config.json/yaml, environment.json, partition.json, summary.json, round_metrics, job_timings, execution_boundaries, server_batches, source_snapshot/manifest 및 그래프가 남는다. v3/v4는 per_round.csv, per_client_round.csv, per_job.jsonl, global_prototype_stats.jsonl, v4 residual_bank_stats.jsonl, config_resolved.yaml,6개 plot도 제공한다. 완료 여부는 프로세스 존재만 보지 않고 status.json/summary.completed를 확인한다.
 
 정식 실행은 최종 Client/Server/Aux/optimizer와 필요한 상태를 `checkpoints/final.pt` 하나로 묶고 프로젝트 전체 최신5개만 유지한다. 오래된 초과 checkpoint만 정리하며 로그/지표/설정/snapshot은 보존한다. Smoke 모델은 보관하지 않는다. 원본 연구 서버의 데이터/과거 결과/최신5개 모델은 이 저장소에 포함되지 않는다.
@@ -83,3 +88,64 @@ python run_exp_main.py --config configs/na_sfl_v4.yaml --rounds 100 \
 ```
 
 재개된 실행의 초기 모델 재전송도 wall에 포함될 수 있다. Smoke와 정식 실행의 config contract는 다르므로 `--smoke-test` 결과를 일반100round에 이어 붙이지 않는다.
+
+## 최신 v5 / SD-only / C
+
+v5는 Slow0·5의 전체 batch class mean Prototype과 Random SD10%(B128→13/B56→6)를
+하나의 HYBRID_JOB으로 전송한다. Fast8은 전체 SD다. 전원 SD0.8+Proto0.2/MSEβ0.1/DualBN이며
+Slow의 두 gradient는 같은 Forward graph에 적용한다. 추론은 전원 원본 SD다.
+SD-only는 Prototype을 제거하고 전원 SD CE1.0을 쓴다.
+
+```bash
+python run_exp_main.py --config configs/na_sfl_proto_random_sd.yaml --smoke-test --rounds 2
+python run_exp_main.py --config configs/na_sfl_random_sd_only.yaml --smoke-test --rounds 2
+python run_exp_main.py --config configs/na_sfl_pipeline_c.yaml --smoke-test --rounds 2
+# 단독 fresh100round:
+python run_exp_main.py --config configs/na_sfl_proto_random_sd.yaml --rounds 100 \
+  --result-path results/20261105_v5_reference
+python run_exp_main.py --config configs/na_sfl_pipeline_c.yaml --rounds 100 \
+  --result-path results/20261105_c_standalone
+```
+
+기준선 일치와 실제 중첩/통신량까지 감사하는 관리 경로는 아래와 같다.
+`/path/to/...`는 **같은 GPU에서 완료한 로컬 run 디렉터리**로 바꾼다.
+새 서버에는 과거 원시 기준선이 없으므로 로컬 기준선을 먼저 학습해야 한다. 공개 CSV는 이를 대체하지 않는다.
+
+```bash
+python run_exp_main.py --config configs/na_sfl_proto_random_sd.yaml --hybrid-experiment \
+  --baseline-reference /path/to/completed_v3_dual_bn_run --result-path results/20261105_v5_comparison
+python run_exp_main.py --config configs/na_sfl_random_sd_only.yaml --sd-only-experiment \
+  --baseline-reference /path/to/completed_v5_run --result-path results/20261105_sd_only_comparison
+python run_exp_main.py --config configs/na_sfl_pipeline_c.yaml --pipeline-experiment \
+  --baseline-reference /path/to/completed_v5_run --result-path results/20261105_c_comparison
+```
+
+각 관리자는 실제2roundSmoke 검증 후 fresh100round를 시작한다.
+완료100round/config/manifest/source snapshot/초기값/분할/GPU UUID/속도표를 검증한다.
+Smoke가 실패하면 main을 시작하지 않는다. **B는 구현·실험하지 않는다.**
+
+C는 Client당 단일 UL Sender·별도 DL Receiver를 유지하고 Trainer만 CUDA/autograd/optimizer를 소유한다.
+같은 Client 파라미터로2 Forward를 만든 뒤 각각 기존 공유 Server FCFS의 별도 Job/Step으로 처리한다.
+두 gradient를 각1/2로 누적한 뒤 Client Adam1회다. B128/B56도 batch동일가중,
+홀수 마지막 singleton은1/1이다. Client당24 Jobs/12 Steps, 전체240 Server Steps/120 Client Steps/round다.
+두 Job은 서로 다른 Server version의 gradient일 수 있다. graph/in-flight/Send/Completion은 최대2개다.
+
+실제 model Forward CUDA 이벤트의 보수적 UL 중첩 하한>0과 입력/그룹/RNG/BN/Prototype/bytes/drain/
+finite checkpoint를 확인한다. host phase/pacing 중첩과 구분하며 Server receive-to-service queue와 내부 queue,
+gradient pending과 Trainer idle도 구분한다. Server wall idle은 GPU utilization이 아니다.
+**A=v5와 C 차이는 pipeline과 accumulation/update빈도의 합성 효과**이며 B가 없어 인과 분리하지 않는다.
+
+## v3 Loss·BN 조건부 실험
+
+```bash
+# 같은 loss의 Dual BN 조건 직접 실행:
+python run_exp_main.py --config configs/na_sfl_v3_variable.yaml --rounds 100 \
+  --fast-sd-weight 0.8 --fast-proto-weight 0.2 --bn-policy dual_running_stats_shared_affine
+# 기존 v3 0.5:0.5/shared100round 기준 자동 분기:
+python run_exp_main.py --config configs/na_sfl_v3_variable.yaml --rounds 100 \
+  --v3-bn-ablation --baseline-reference /path/to/completed_original_v3_run
+```
+
+첫0.8:0.2의 마지막10round 평균이 기준선보다 엄격히 높으면 BN Freeze/Dual도0.8:0.2,
+그렇지 않으면0.5:0.5로 실행한다. Freeze는 Proto BN 통계만 eval이고 gradient는 유지한다.
+Dual BN은 affine/optimizer 공유, running statistics만 SD/Proto로 분리하며 평가 domain은 SD다.

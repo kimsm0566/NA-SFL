@@ -29,3 +29,14 @@ For detailed current method definitions and implementation assumptions, see
 `docs/11-02/04-architecture/README.md`. Historical experimental claims should not
 be interpreted as an exact reproduction of an original paper or as a guarantee
 of performance on a different GPU/server.
+
+## FedOptima reference and local adapter
+
+`src/reference_external/FedOptima` is based on
+[blessonvar/FedOptima](https://github.com/blessonvar/FedOptima), commit
+`3eba341c7f4ca4fafc450ec2714a05484a14fdb8`, under the preserved
+[MIT License](src/reference_external/FedOptima/LICENSE), copyright2021 dreamlh.
+The `hsfl/` directory and opt-in `run.py --hsfl-experiment` dispatch adapt
+model/data/network/control/protocol to the recorded research environment.
+This is not an exact paper reproduction. See
+[scope and execution constraints](docs/11-05/09-fedoptima-reference/README.md).

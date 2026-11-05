@@ -1,0 +1,40 @@
+{
+  "decision_metric": "mean(test_accuracy_rounds_91_to_100)",
+  "baseline_last10_mean": 57.54,
+  "loss_08_02_last10_mean": 62.22,
+  "baseline_last10_mean_exact": "57.54",
+  "loss_08_02_last10_mean_exact": "62.22",
+  "baseline_rounds_91_to_100": [
+    56.49,
+    55.88,
+    54.7,
+    60.59,
+    55.29,
+    54.31,
+    58.76,
+    59.09,
+    62.83,
+    57.46
+  ],
+  "loss_08_02_rounds_91_to_100": [
+    65.76,
+    63.07,
+    63.36,
+    56.29,
+    65.01,
+    64.04,
+    63.01,
+    62.88,
+    61.72,
+    57.06
+  ],
+  "improved": true,
+  "selected_fast_sd_weight": 0.8,
+  "selected_fast_proto_weight": 0.2,
+  "gate_condition": "loss_08_02_last10_mean > baseline_last10_mean",
+  "comparison_arithmetic": "exact Decimal of recorded accuracy; no rounding before comparison",
+  "interpretation": "single-seed setting selection, not statistical superiority",
+  "decided_at": "2026-11-04T05:39:13.223131+09:00",
+  "stage_a_round_metrics_sha256": "e11bccfac1265fbf90b175a04d7ebb1232350af06892a8356428a78acd019c8d",
+  "baseline_reference_sha256": "426e03ef1f00c93d823bf38b3b670d182e8e514ca67607f6ea9d9557c65db4fd"
+}

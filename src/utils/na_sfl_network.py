@@ -278,6 +278,7 @@ class MininetNetwork:
     def create_connections(self):
         """Return (Client, Server) connected sockets for each fixed Client ID."""
         self._require_active()
+        connection_started = time.monotonic()
         pairs = []
         listener = self._socket_for(self.server)
         pending = None
@@ -296,6 +297,10 @@ class MininetNetwork:
                 pairs.append((pending, accepted))
                 pending = None
             self._connections.extend(pairs)
+            self._metadata.setdefault('connection_setup_events', []).append({
+                'round': self._metadata.get('active_round'), 'client_count': len(pairs),
+                'started_monotonic_s': connection_started,
+                'wall_s': time.monotonic() - connection_started})
             return pairs
         except BaseException:
             if pending is not None:
